@@ -1,0 +1,385 @@
+:root {
+  color-scheme: dark;
+  --bg: #101311;
+  --panel: #1a201c;
+  --panel-2: #242b26;
+  --line: #3b453e;
+  --text: #eef4ec;
+  --muted: #aab6aa;
+  --accent: #f5b84b;
+  --accent-2: #58c4b8;
+  --danger: #f46a55;
+  --good: #7fd36b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #263326 0, #101311 42%, #0a0d0c 100%);
+  color: var(--text);
+}
+
+button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #202820;
+  color: var(--text);
+  min-height: 42px;
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.primary {
+  background: var(--accent);
+  border-color: #ffd37a;
+  color: #241704;
+}
+
+.shell {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.topbar,
+.garage-header,
+.hud,
+.repair-head,
+.tool-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.game-icon {
+  width: clamp(54px, 9vw, 76px);
+  height: clamp(54px, 9vw, 76px);
+  flex: 0 0 auto;
+  border-radius: 18px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(32px, 6vw, 68px);
+  line-height: 0.95;
+}
+
+#subtitle,
+.upgrade-panel p,
+.repair-head p {
+  color: var(--muted);
+}
+
+#selectedVehicleBest {
+  margin-top: 8px;
+  color: var(--accent-2);
+  font-weight: 800;
+}
+
+.wallet,
+.hud div {
+  display: grid;
+  gap: 2px;
+  min-width: 92px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(26, 32, 28, 0.88);
+}
+
+.wallet span,
+.hud span {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.wallet strong,
+.hud strong {
+  font-size: 22px;
+}
+
+.garage,
+.game {
+  margin-top: 18px;
+}
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.vehicle-card {
+  min-height: 132px;
+  text-align: left;
+  padding: 14px;
+  background: var(--panel);
+}
+
+.vehicle-card.selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.vehicle-card strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.vehicle-card span {
+  display: block;
+  color: var(--muted);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.upgrade-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(280px, 2fr);
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(26, 32, 28, 0.9);
+}
+
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.upgrade-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upgrade-button span {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.upgrade-button em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(96px, 1fr));
+  margin-bottom: 10px;
+}
+
+.run-strip {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(220px, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.run-strip div {
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(26, 32, 28, 0.72);
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+#eventLog {
+  color: var(--accent);
+}
+
+.play-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  align-items: stretch;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111815;
+}
+
+#worldCanvas {
+  height: min(62vh, 620px);
+}
+
+.repair-panel {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+#drawCanvas {
+  height: 240px;
+  cursor: crosshair;
+  background: #f2ead7;
+}
+
+.repair-result {
+  min-height: 54px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.dialog {
+  width: min(420px, 100%);
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.dialog p {
+  color: var(--muted);
+  margin: 12px 0 18px;
+}
+
+.touch-controls {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 24px;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.touch-controls > * {
+  pointer-events: all;
+}
+
+.tc-dpad {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.tc-lr {
+  display: flex;
+  gap: 38px;
+}
+
+.tc-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  background: rgba(26, 32, 28, 0.82);
+  border-color: rgba(255, 255, 255, 0.16);
+  font-size: 18px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tc-boost-btn {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  background: rgba(245, 184, 75, 0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .topbar,
+  .garage-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .brand-lockup {
+    align-items: flex-start;
+  }
+
+  .upgrade-panel,
+  .play-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .upgrade-grid,
+  .hud,
+  .run-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #worldCanvas {
+    height: 48vh;
+  }
+}
+
+@media (max-width: 620px) {
+  .hud,
+  .run-strip {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PatchDrive</title>
+    <link rel="icon" href="assets/patchdrive-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/patchdrive-icon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar">
+        <div class="brand-lockup">
+          <img src="assets/patchdrive-icon.svg" alt="" class="game-icon" width="76" height="76" />
+          <div>
+            <h1>PatchDrive</h1>
+            <p id="subtitle">Choose a machine, survive disasters, draw emergency parts.</p>
+          </div>
+        </div>
+        <div class="wallet">
+          <span>Bank</span>
+          <strong id="bankCoins">0</strong>
+        </div>
+      </section>
+
+      <section id="garage" class="garage">
+        <div class="garage-header">
+          <h2>Garage</h2>
+          <button id="startButton" class="primary">Start Run</button>
+        </div>
+        <div id="vehicleGrid" class="vehicle-grid"></div>
+        <div class="upgrade-panel">
+          <div>
+            <h3 id="selectedVehicleName">Scout Car</h3>
+            <p id="selectedVehicleStats"></p>
+            <p id="selectedVehicleBest"></p>
+          </div>
+          <div class="upgrade-grid">
+            <button data-upgrade="engine" class="upgrade-button">
+              <span>Engine <em id="engineCost"></em></span>
+              <strong id="engineLevel">1</strong>
+            </button>
+            <button data-upgrade="armor" class="upgrade-button">
+              <span>Armor <em id="armorCost"></em></span>
+              <strong id="armorLevel">1</strong>
+            </button>
+            <button data-upgrade="stability" class="upgrade-button">
+              <span>Stability <em id="stabilityCost"></em></span>
+              <strong id="stabilityLevel">1</strong>
+            </button>
+            <button data-upgrade="repair" class="upgrade-button">
+              <span>Repair <em id="repairCost"></em></span>
+              <strong id="repairLevel">1</strong>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="game" class="game hidden">
+        <div class="hud">
+          <div><span>Run</span><strong id="runCoins">0</strong></div>
+          <div><span>Score</span><strong id="score">0</strong></div>
+          <div><span>HP</span><strong id="hp">100</strong></div>
+          <div><span>Part</span><strong id="partHealth">100</strong></div>
+          <div><span>Fuel</span><strong id="fuel">100</strong></div>
+          <div><span>Heat</span><strong id="heat">0</strong></div>
+          <div><span>Disaster</span><strong id="disaster">Clear</strong></div>
+        </div>
+        <div class="run-strip">
+          <div id="controlHint">W/Up thrust · A/D or arrows balance · S/Down brake · Space boost</div>
+          <div id="eventLog">Systems online.</div>
+        </div>
+        <div class="play-layout">
+          <canvas id="worldCanvas" width="960" height="520" aria-label="PatchDrive game world"></canvas>
+          <aside class="repair-panel">
+            <div class="repair-head">
+              <div>
+                <h2 id="repairTitle">Repair Ready</h2>
+                <p id="repairHint">Draw when a part fails.</p>
+              </div>
+              <button id="healButton" title="Spend run coins to heal">Heal</button>
+            </div>
+            <canvas id="drawCanvas" width="320" height="240" aria-label="Draw replacement part"></canvas>
+            <div class="tool-row">
+              <button id="clearDraw">Clear</button>
+              <button id="installDraw" class="primary">Install</button>
+            </div>
+            <div id="repairResult" class="repair-result">No active failure.</div>
+          </aside>
+        </div>
+        <div id="touchControls" class="touch-controls hidden">
+          <div class="tc-dpad">
+            <button id="tc-up" class="tc-btn">&#9650;</button>
+            <div class="tc-lr">
+              <button id="tc-left" class="tc-btn">&#9664;</button>
+              <button id="tc-right" class="tc-btn">&#9654;</button>
+            </div>
+            <button id="tc-down" class="tc-btn">&#9660;</button>
+          </div>
+          <button id="tc-boost" class="tc-btn tc-boost-btn">BOOST</button>
+        </div>
+      </section>
+
+      <section id="gameOver" class="modal hidden">
+        <div class="dialog">
+          <h2>Run Failed</h2>
+          <p id="runSummary"></p>
+          <button id="backToGarage" class="primary">Back to Garage</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
