@@ -18,16 +18,34 @@
             <p id="subtitle">Choose a machine, survive disasters, draw emergency parts.</p>
           </div>
         </div>
-        <div class="wallet">
-          <span>Bank</span>
-          <strong id="bankCoins">0</strong>
+        <div class="topbar-actions">
+          <button id="howToPlayBtn" class="icon-btn" title="How to play">?</button>
+          <button id="settingsBtn" class="icon-btn" title="Settings">⚙</button>
+          <div class="wallet">
+            <span>Bank</span>
+            <strong id="bankCoins">0</strong>
+          </div>
         </div>
       </section>
 
       <section id="garage" class="garage">
         <div class="garage-header">
           <h2>Garage</h2>
-          <button id="startButton" class="primary">Start Run</button>
+          <div class="loadout-strip">
+            <span class="upgrade-label">Loadout</span>
+            <div class="loadout-row">
+              <button class="loadout-btn selected" data-loadout="none"   title="No bonus — balanced run">Standard</button>
+              <button class="loadout-btn" data-loadout="hull"    title="+25 max HP">Hull</button>
+              <button class="loadout-btn" data-loadout="tank"    title="130% fuel, slower burn">Tank</button>
+              <button class="loadout-btn" data-loadout="tools"   title="First repair +25%">Tools</button>
+              <button class="loadout-btn" data-loadout="veteran" title="No part failure for 20s">Veteran</button>
+            </div>
+          </div>
+          <div class="garage-btns">
+            <button id="dailyBtn" class="loadout-btn">Daily Challenge</button>
+            <button id="leaderboardBtn" class="loadout-btn">Leaderboard</button>
+            <button id="startButton" class="primary">Start Run</button>
+          </div>
         </div>
         <div id="vehicleGrid" class="vehicle-grid"></div>
         <div class="upgrade-panel">
@@ -36,23 +54,28 @@
             <p id="selectedVehicleStats"></p>
             <p id="selectedVehicleBest"></p>
           </div>
-          <div class="upgrade-grid">
-            <button data-upgrade="engine" class="upgrade-button">
-              <span>Engine <em id="engineCost"></em></span>
-              <strong id="engineLevel">1</strong>
-            </button>
-            <button data-upgrade="armor" class="upgrade-button">
-              <span>Armor <em id="armorCost"></em></span>
-              <strong id="armorLevel">1</strong>
-            </button>
-            <button data-upgrade="stability" class="upgrade-button">
-              <span>Stability <em id="stabilityCost"></em></span>
-              <strong id="stabilityLevel">1</strong>
-            </button>
-            <button data-upgrade="repair" class="upgrade-button">
-              <span>Repair <em id="repairCost"></em></span>
-              <strong id="repairLevel">1</strong>
-            </button>
+          <div class="upgrades-col">
+            <p class="upgrade-label">Universal</p>
+            <div class="upgrade-grid">
+              <button data-upgrade="engine" class="upgrade-button">
+                <span>Engine <em id="engineCost"></em></span>
+                <strong id="engineLevel">1</strong>
+              </button>
+              <button data-upgrade="armor" class="upgrade-button">
+                <span>Armor <em id="armorCost"></em></span>
+                <strong id="armorLevel">1</strong>
+              </button>
+              <button data-upgrade="stability" class="upgrade-button">
+                <span>Stability <em id="stabilityCost"></em></span>
+                <strong id="stabilityLevel">1</strong>
+              </button>
+              <button data-upgrade="repair" class="upgrade-button">
+                <span>Repair <em id="repairCost"></em></span>
+                <strong id="repairLevel">1</strong>
+              </button>
+            </div>
+            <p class="upgrade-label" id="typeUpgradeLabel">Type Upgrades</p>
+            <div class="upgrade-grid" id="typeUpgradeGrid"></div>
           </div>
         </div>
       </section>
@@ -68,7 +91,8 @@
           <div><span>Disaster</span><strong id="disaster">Clear</strong></div>
         </div>
         <div class="run-strip">
-          <div id="controlHint">W/Up thrust · A/D or arrows balance · S/Down brake · Space boost</div>
+          <div id="controlHint">W/Up thrust · A/D arrows balance · S brake · Space boost · P pause</div>
+          <div id="missionDisplay" class="mission-display">Mission loading...</div>
           <div id="eventLog">Systems online.</div>
         </div>
         <div class="play-layout">
@@ -87,6 +111,16 @@
               <button id="installDraw" class="primary">Install</button>
             </div>
             <div id="repairResult" class="repair-result">No active failure.</div>
+            <div class="saved-parts-section">
+              <div class="saved-parts-head">
+                <span class="upgrade-label">Saved Parts</span>
+                <div class="saved-parts-save">
+                  <input id="savedPartName" type="text" placeholder="Name…" maxlength="16" />
+                  <button id="savePartBtn">Save</button>
+                </div>
+              </div>
+              <div id="savedPartsList"></div>
+            </div>
           </aside>
         </div>
         <div id="touchControls" class="touch-controls hidden">
@@ -102,15 +136,118 @@
         </div>
       </section>
 
-      <section id="gameOver" class="modal hidden">
+      <section id="checkpoint" class="modal hidden">
         <div class="dialog">
-          <h2>Run Failed</h2>
+          <h2>Checkpoint Garage</h2>
+          <div class="cp-stats">
+            <div class="stat-row"><span>Distance</span><strong id="cpScore">—</strong></div>
+            <div class="stat-row"><span>HP</span><strong id="cpHp">—</strong></div>
+            <div class="stat-row"><span>Run Coins</span><strong id="cpCoins">—</strong></div>
+          </div>
+          <div class="cp-actions">
+            <button id="cpHealBtn">Full Heal — <span id="cpHealCost">50</span> coins</button>
+            <button id="cpFixBtn">Replace Broken Part — <span id="cpFixCost">30</span> coins</button>
+          </div>
+          <button id="cpContinueBtn" class="primary" style="width:100%;margin-top:14px">Continue Run</button>
+        </div>
+      </section>
+
+      <section id="pauseMenu" class="modal hidden">
+        <div class="dialog">
+          <h2>Paused</h2>
+          <p id="pauseInfo"></p>
+          <button id="resumeButton" class="primary">Resume</button>
+          <button id="quitRunButton" style="margin-top:10px;width:100%">Quit Run</button>
+        </div>
+      </section>
+
+      <section id="gameOver" class="modal hidden">
+        <div class="dialog dialog-wide">
+          <h2>Run Over</h2>
           <p id="runSummary"></p>
-          <button id="backToGarage" class="primary">Back to Garage</button>
+          <div id="runStats" class="run-stats"></div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button id="shareRunBtn" style="flex:1">Share Card</button>
+            <button id="backToGarage" class="primary" style="flex:2">Back to Garage</button>
+          </div>
         </div>
       </section>
     </main>
 
+    <!-- Splash screen -->
+    <section id="splashScreen" class="splash">
+      <div class="splash-content">
+        <img src="assets/patchdrive-icon.svg" alt="" class="splash-icon" width="96" height="96" />
+        <h1 class="splash-title">PatchDrive</h1>
+        <p class="splash-sub">Survive disasters. Draw emergency parts. Keep rolling.</p>
+        <div class="splash-tips">
+          <span>🚗 Ground · ✈️ Air · 🚀 Space</span>
+        </div>
+        <button id="playSplash" class="primary splash-play">Play</button>
+        <p class="splash-hint">W / Up thrust · Space boost · Draw broken parts to repair</p>
+      </div>
+    </section>
+
+    <!-- Settings modal -->
+    <section id="settingsModal" class="modal hidden">
+      <div class="dialog">
+        <h2>Settings</h2>
+        <div class="settings-row">
+          <label for="volumeSlider">Volume</label>
+          <input type="range" id="volumeSlider" min="0" max="100" value="55" class="vol-slider" />
+          <span id="volumeVal">55%</span>
+        </div>
+        <div class="settings-section">
+          <p class="upgrade-label">Controls</p>
+          <div class="key-grid">
+            <div class="key-row"><kbd>W / ↑</kbd><span>Thrust / Fly up</span></div>
+            <div class="key-row"><kbd>S / ↓</kbd><span>Brake / Descend</span></div>
+            <div class="key-row"><kbd>A / D</kbd><span>Balance / Steer</span></div>
+            <div class="key-row"><kbd>Space</kbd><span>Boost</span></div>
+            <div class="key-row"><kbd>P / Esc</kbd><span>Pause</span></div>
+          </div>
+        </div>
+        <button id="closeSettings" class="primary" style="width:100%;margin-top:14px">Done</button>
+      </div>
+    </section>
+
+    <!-- How to play modal -->
+    <section id="howToPlayModal" class="modal hidden">
+      <div class="dialog dialog-wide">
+        <h2>How to Play</h2>
+        <div class="htp-sections">
+          <div class="htp-block">
+            <p class="upgrade-label">The Loop</p>
+            <p class="htp-text">Drive your machine as far as possible. Disasters strike periodically — survive them for coins. Parts fail over time; when one breaks, draw a replacement in the panel to install it.</p>
+          </div>
+          <div class="htp-block">
+            <p class="upgrade-label">Drawing</p>
+            <p class="htp-text">Follow the guide shape when drawing. Circles for wheels, long tubes for pipes, flat shapes for wings, triangles for thrusters, blocks for armor. Better shape = higher quality = more HP and coins.</p>
+          </div>
+          <div class="htp-block">
+            <p class="upgrade-label">Progression</p>
+            <p class="htp-text">Earn bank coins each run. Spend them on upgrades between runs, or unlock new vehicles. Biomes shift as you travel further — each has unique hazards. Bosses appear every ~1200 score.</p>
+          </div>
+          <div class="htp-block">
+            <p class="upgrade-label">Tips</p>
+            <p class="htp-text">Use checkpoints to heal when low on HP. Save your best drawings as reusable parts. The Veteran loadout gives you 20s before the first part fails — great for long runs.</p>
+          </div>
+        </div>
+        <button id="closeHowToPlay" class="primary" style="width:100%;margin-top:14px">Got it</button>
+      </div>
+    </section>
+
+    <!-- Leaderboard modal -->
+    <section id="leaderboardModal" class="modal hidden">
+      <div class="dialog">
+        <h2>Leaderboard</h2>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:10px">Your top runs, all vehicles</p>
+        <div id="leaderboardBody" class="run-stats"></div>
+        <button id="closeLeaderboard" class="primary" style="width:100%;margin-top:14px">Close</button>
+      </div>
+    </section>
+
+    <script src="sounds.js"></script>
     <script src="game.js"></script>
   </body>
 </html>

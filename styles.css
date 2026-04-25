@@ -58,7 +58,6 @@ button:disabled {
 }
 
 .topbar,
-.garage-header,
 .hud,
 .repair-head,
 .tool-row {
@@ -66,6 +65,14 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.garage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .brand-lockup {
@@ -171,17 +178,32 @@ h1 {
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(280px, 2fr);
   gap: 16px;
-  align-items: center;
+  align-items: start;
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(26, 32, 28, 0.9);
 }
 
+.upgrades-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upgrade-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
 .upgrade-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 8px;
 }
 
 .upgrade-button {
@@ -211,7 +233,7 @@ h1 {
 
 .run-strip {
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(220px, 1fr);
+  grid-template-columns: minmax(200px, 1.2fr) minmax(200px, 1.5fr) minmax(180px, 1fr);
   gap: 10px;
   margin-bottom: 12px;
 }
@@ -229,6 +251,15 @@ h1 {
 
 #eventLog {
   color: var(--accent);
+}
+
+.mission-display {
+  color: var(--accent-2);
+  font-size: 13px;
+}
+
+.mission-done {
+  color: var(--good) !important;
 }
 
 .play-layout {
@@ -293,9 +324,196 @@ canvas {
   background: var(--panel);
 }
 
+.dialog-wide {
+  width: min(540px, 100%);
+}
+
 .dialog p {
   color: var(--muted);
-  margin: 12px 0 18px;
+  margin: 12px 0 10px;
+}
+
+.run-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  font-size: 14px;
+}
+
+.stat-row span {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.stat-row strong {
+  font-size: 15px;
+}
+
+.mission-row strong {
+  color: var(--accent-2);
+  font-size: 13px;
+  text-align: right;
+  max-width: 55%;
+}
+
+.total-row {
+  border: 1px solid var(--accent);
+  background: rgba(245, 184, 75, 0.08);
+}
+
+.total-row strong {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.hud-warn strong {
+  color: var(--danger) !important;
+  animation: blink 0.5s step-end infinite;
+}
+
+.hud-warn span {
+  color: var(--danger) !important;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.vehicle-card.locked {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.vehicle-card.locked strong {
+  color: var(--muted);
+}
+
+.vehicle-card.locked .vc-stats {
+  color: var(--accent);
+}
+
+/* --- Loadout picker --- */
+.loadout-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loadout-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.loadout-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  background: var(--panel-2);
+  border-color: var(--line);
+}
+
+.loadout-btn.selected {
+  border-color: var(--accent-2);
+  background: rgba(88, 196, 184, 0.12);
+  color: var(--accent-2);
+}
+
+/* --- Checkpoint modal --- */
+.cp-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.cp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-actions button {
+  width: 100%;
+}
+
+/* --- Saved parts --- */
+.saved-parts-section {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.saved-parts-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.saved-parts-save {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.saved-parts-save input {
+  width: 90px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+}
+
+.saved-parts-save button {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.saved-part-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sp-load {
+  flex: 1;
+  min-height: 30px;
+  font-size: 12px;
+  text-align: left;
+  padding: 0 10px;
+  background: var(--panel-2);
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+
+.sp-del {
+  min-height: 30px;
+  width: 30px;
+  padding: 0;
+  font-size: 12px;
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .touch-controls {
@@ -350,6 +568,182 @@ canvas {
   color: var(--accent);
 }
 
+/* --- Topbar actions --- */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 18px;
+  border-radius: 50%;
+  background: var(--panel);
+}
+
+/* --- Garage button row --- */
+.garage-btns {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* --- Splash screen --- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 42%, #1a3a20 0, #0a0d0c 60%);
+  animation: splashFadeIn 0.5s ease;
+}
+
+@keyframes splashFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.splash-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 24px;
+  max-width: 480px;
+}
+
+.splash-icon {
+  border-radius: 22px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: splashBob 2.4s ease-in-out infinite;
+}
+
+@keyframes splashBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.splash-title {
+  font-size: clamp(48px, 10vw, 80px);
+  line-height: 0.9;
+  color: var(--accent);
+}
+
+.splash-sub {
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.splash-tips {
+  color: var(--accent-2);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.splash-play {
+  font-size: 20px;
+  min-height: 54px;
+  padding: 0 40px;
+  border-radius: 12px;
+  letter-spacing: 0.04em;
+}
+
+.splash-hint {
+  color: var(--muted);
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* --- Settings --- */
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-row label {
+  font-weight: 700;
+  min-width: 70px;
+}
+
+.vol-slider {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+#volumeVal {
+  min-width: 36px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.settings-section {
+  margin-top: 16px;
+}
+
+.key-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel-2);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 700;
+  min-width: 64px;
+  text-align: center;
+}
+
+.key-row span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* --- How to play --- */
+.htp-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.htp-block {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--panel-2);
+}
+
+.htp-text {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 6px !important;
+}
+
 @media (max-width: 900px) {
   .topbar,
   .garage-header {
@@ -366,10 +760,20 @@ canvas {
     grid-template-columns: 1fr;
   }
 
-  .upgrade-grid,
-  .hud,
-  .run-strip {
+  .upgrade-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hud {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .run-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #missionDisplay {
+    grid-column: 1 / -1;
   }
 
   #worldCanvas {
@@ -378,7 +782,10 @@ canvas {
 }
 
 @media (max-width: 620px) {
-  .hud,
+  .hud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .run-strip {
     grid-template-columns: 1fr;
   }

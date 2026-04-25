@@ -1,6 +1,6 @@
 ---
 title: Phase 4 — Depth & Replayability
-status: planned
+status: done
 ---
 
 # Phase 4 — Depth & Replayability

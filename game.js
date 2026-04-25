@@ -1,11 +1,13 @@
 const vehicles = [
-  { id: "car",        name: "Scout Car",    type: "ground", mass: 1.10, thrust: 0.50, grip: 0.86, lift: 0,     drag: 0.018, stability: 0.80, armor: 1.00 },
-  { id: "bike",       name: "Ridge Bike",   type: "ground", mass: 0.72, thrust: 0.62, grip: 0.78, lift: 0,     drag: 0.020, stability: 0.52, armor: 0.70 },
-  { id: "truck",      name: "Iron Truck",   type: "ground", mass: 1.70, thrust: 0.42, grip: 0.90, lift: 0,     drag: 0.024, stability: 0.95, armor: 1.45 },
-  { id: "airplane",   name: "Aero Wing",    type: "air",    mass: 1.05, thrust: 0.62, grip: 0.20, lift: 0.055, drag: 0.014, stability: 0.72, armor: 0.82 },
-  { id: "jet",        name: "Storm Jet",    type: "air",    mass: 1.20, thrust: 0.88, grip: 0.16, lift: 0.052, drag: 0.018, stability: 0.64, armor: 0.78 },
-  { id: "helicopter", name: "Patch Copter", type: "air",    mass: 1.00, thrust: 0.50, grip: 0.10, lift: 0.072, drag: 0.022, stability: 0.58, armor: 0.84 },
-  { id: "spaceship",  name: "Orbit Scrap",  type: "space",  mass: 1.25, thrust: 0.55, grip: 0,    lift: 0,     drag: 0.003, stability: 0.46, armor: 0.90 }
+  { id: "car",        name: "Scout Car",    type: "ground", mass: 1.10, thrust: 0.50, grip: 0.86, lift: 0,     drag: 0.018, stability: 0.80, armor: 1.00, unlockCost: 0 },
+  { id: "bike",       name: "Ridge Bike",   type: "ground", mass: 0.72, thrust: 0.62, grip: 0.78, lift: 0,     drag: 0.020, stability: 0.52, armor: 0.70, unlockCost: 0 },
+  { id: "truck",      name: "Iron Truck",   type: "ground", mass: 1.70, thrust: 0.42, grip: 0.90, lift: 0,     drag: 0.024, stability: 0.95, armor: 1.45, unlockCost: 0 },
+  { id: "buggy",      name: "Dune Buggy",   type: "ground", mass: 0.88, thrust: 0.70, grip: 0.80, lift: 0,     drag: 0.019, stability: 0.65, armor: 0.78, unlockCost: 600,  parts: ["wheel", "gear", "axle", "spring", "armor plate"] },
+  { id: "airplane",   name: "Aero Wing",    type: "air",    mass: 1.05, thrust: 0.62, grip: 0.20, lift: 0.055, drag: 0.014, stability: 0.72, armor: 0.82, unlockCost: 0 },
+  { id: "jet",        name: "Storm Jet",    type: "air",    mass: 1.20, thrust: 0.88, grip: 0.16, lift: 0.052, drag: 0.018, stability: 0.64, armor: 0.78, unlockCost: 0 },
+  { id: "helicopter", name: "Patch Copter", type: "air",    mass: 1.00, thrust: 0.50, grip: 0.10, lift: 0.072, drag: 0.022, stability: 0.58, armor: 0.84, unlockCost: 800 },
+  { id: "spaceship",  name: "Orbit Scrap",  type: "space",  mass: 1.25, thrust: 0.55, grip: 0,    lift: 0,     drag: 0.003, stability: 0.46, armor: 0.90, unlockCost: 0 },
+  { id: "orbital",    name: "Void Runner",  type: "space",  mass: 0.95, thrust: 0.72, grip: 0,    lift: 0,     drag: 0.002, stability: 0.54, armor: 0.72, unlockCost: 1200, parts: ["thruster", "shield panel", "oxygen pipe", "solar panel", "reactor coil"] }
 ];
 
 const disasters = {
@@ -13,19 +15,29 @@ const disasters = {
     { name: "Earthquake",    wind:  0.00, shake: 0.95, friction: 0.95, damage: 6 },
     { name: "Flood",         wind:  0.00, shake: 0.10, friction: 0.62, damage: 4 },
     { name: "Sandstorm",     wind: -0.13, shake: 0.20, friction: 0.74, damage: 5 },
-    { name: "Meteor Shower", wind:  0.04, shake: 0.40, friction: 1.00, damage: 9 }
+    { name: "Meteor Shower", wind:  0.04, shake: 0.40, friction: 1.00, damage: 9 },
+    { name: "Landslide",     wind:  0.06, shake: 0.80, friction: 0.70, damage: 7 },
+    { name: "Ice Storm",     wind: -0.08, shake: 0.25, friction: 0.40, damage: 5, special: "ice" },
+    { name: "Tornado",       wind: -0.45, shake: 0.90, friction: 0.80, damage: 8 },
+    { name: "Mud Surge",     wind:  0.00, shake: 0.15, friction: 0.50, damage: 4 }
   ],
   air: [
-    { name: "Thunderstorm", wind: -0.20, shake: 0.70, friction: 1, damage: 7 },
-    { name: "Turbulence",   wind:  0.16, shake: 1.00, friction: 1, damage: 5 },
-    { name: "Volcanic Ash", wind: -0.06, shake: 0.24, friction: 1, damage: 8 },
-    { name: "Cyclone",      wind: -0.32, shake: 0.85, friction: 1, damage: 9 }
+    { name: "Thunderstorm",  wind: -0.20, shake: 0.70, friction: 1, damage: 7 },
+    { name: "Turbulence",    wind:  0.16, shake: 1.00, friction: 1, damage: 5 },
+    { name: "Volcanic Ash",  wind: -0.06, shake: 0.24, friction: 1, damage: 8 },
+    { name: "Cyclone",       wind: -0.32, shake: 0.85, friction: 1, damage: 9 },
+    { name: "Lightning",     wind:  0.00, shake: 0.50, friction: 1, damage: 10, special: "lightning" },
+    { name: "Engine Icing",  wind: -0.05, shake: 0.10, friction: 1, damage: 6,  special: "engine_ice" },
+    { name: "Air Debris",    wind:  0.10, shake: 0.30, friction: 1, damage: 6,  special: "debris_heavy" }
   ],
   space: [
-    { name: "Asteroid Field", wind:  0.02, shake: 0.65, friction: 1, damage: 9 },
-    { name: "Solar Flare",    wind: -0.08, shake: 0.30, friction: 1, damage: 8 },
-    { name: "Gravity Well",   wind:  0.00, shake: 0.55, friction: 1, damage: 6 },
-    { name: "Debris Storm",   wind:  0.18, shake: 0.70, friction: 1, damage: 7 }
+    { name: "Asteroid Field",   wind:  0.02, shake: 0.65, friction: 1, damage: 9 },
+    { name: "Solar Flare",      wind: -0.08, shake: 0.30, friction: 1, damage: 8 },
+    { name: "Gravity Well",     wind:  0.00, shake: 0.55, friction: 1, damage: 6 },
+    { name: "Debris Storm",     wind:  0.18, shake: 0.70, friction: 1, damage: 7 },
+    { name: "Radiation Burst",  wind:  0.00, shake: 0.20, friction: 1, damage: 10, special: "radiation" },
+    { name: "Oxygen Leak",      wind:  0.00, shake: 0.10, friction: 1, damage: 5,  special: "fuel_drain" },
+    { name: "Plasma Surge",     wind:  0.15, shake: 0.60, friction: 1, damage: 8,  special: "overheat" }
   ]
 };
 
@@ -34,6 +46,100 @@ const partByType = {
   air:    ["wing patch", "rotor blade", "rudder", "jet nozzle", "fuel pipe"],
   space:  ["thruster", "shield panel", "oxygen pipe", "solar panel", "reactor coil"]
 };
+
+const typeUpgrades = {
+  ground: [
+    { key: "tireGrip",   label: "Tire Grip",   desc: "+grip per level"    },
+    { key: "suspension", label: "Suspension",  desc: "-impact damage"      },
+    { key: "autoRepair", label: "Auto-Repair", desc: "Slow part self-heal" }
+  ],
+  air: [
+    { key: "liftBoost",      label: "Lift",        desc: "+lift force per level" },
+    { key: "fuelEfficiency", label: "Fuel Eff",    desc: "-fuel use per level"   },
+    { key: "autoRepair",     label: "Auto-Repair", desc: "Slow part self-heal"   }
+  ],
+  space: [
+    { key: "thrusterPower",  label: "Thrusters",   desc: "+thrust per level"     },
+    { key: "shieldStrength", label: "Shield",      desc: "-hazard damage"        },
+    { key: "autoRepair",     label: "Auto-Repair", desc: "Slow part self-heal"   }
+  ]
+};
+
+// --- Biomes ---
+const biomes = {
+  ground: [
+    { name: "Plains",      scoreStart: 0,    groundColor: "#394232", skyTop: "#1a3040", skyBot: "#1e3a24", rockColor: "#3a4838" },
+    { name: "Desert",      scoreStart: 500,  groundColor: "#5a4828", skyTop: "#2a1c0e", skyBot: "#3a2814", rockColor: "#7a6040" },
+    { name: "Ice Fields",  scoreStart: 1100, groundColor: "#7ab4c8", skyTop: "#183048", skyBot: "#243848", rockColor: "#9ac4d8" },
+    { name: "City Rubble", scoreStart: 1900, groundColor: "#3a3830", skyTop: "#1c1c20", skyBot: "#242424", rockColor: "#5a5850" },
+    { name: "Volcanic",    scoreStart: 2900, groundColor: "#2e1408", skyTop: "#2a0808", skyBot: "#1a0808", rockColor: "#6a2808" }
+  ],
+  air: [
+    { name: "Low Clouds",  scoreStart: 0,    skyTop: "#173c48", skyBot: "#2a4030" },
+    { name: "Storm Layer", scoreStart: 600,  skyTop: "#141824", skyBot: "#1a2230" },
+    { name: "High Alt",    scoreStart: 1400, skyTop: "#080c20", skyBot: "#101828" },
+    { name: "Space Edge",  scoreStart: 2400, skyTop: "#050818", skyBot: "#0a0c1a" }
+  ],
+  space: [
+    { name: "Near Orbit",    scoreStart: 0,    nebulaColor: "#4a2878", starDensity: 80 },
+    { name: "Asteroid Belt", scoreStart: 700,  nebulaColor: "#784428", starDensity: 50 },
+    { name: "Deep Space",    scoreStart: 1600, nebulaColor: "#284878", starDensity: 120 },
+    { name: "Nebula Core",   scoreStart: 2800, nebulaColor: "#782848", starDensity: 160 }
+  ]
+};
+
+// --- Boss events ---
+const bossEvents = {
+  ground: {
+    name: "Mega Tornado",
+    phases: [
+      { label: "Approaching",  wind: -0.25, shake: 0.5,  friction: 0.7,  damage: 5,  duration: 8  },
+      { label: "Direct Hit",   wind: -0.65, shake: 1.2,  friction: 0.55, damage: 12, duration: 10 },
+      { label: "Aftermath",    wind: -0.1,  shake: 0.35, friction: 0.8,  damage: 4,  duration: 7  }
+    ]
+  },
+  air: {
+    name: "Storm Front",
+    phases: [
+      { label: "Rolling In",   wind: -0.3,  shake: 0.6,  friction: 1, damage: 6,  duration: 7,  special: "lightning" },
+      { label: "Full Force",   wind: -0.5,  shake: 1.1,  friction: 1, damage: 14, duration: 10, special: "lightning" },
+      { label: "Passing",      wind: -0.15, shake: 0.45, friction: 1, damage: 5,  duration: 6  }
+    ]
+  },
+  space: {
+    name: "Colossal Asteroid",
+    phases: [
+      { label: "Incoming",     wind: 0.06, shake: 0.4,  friction: 1, damage: 7,  duration: 8,  special: "debris_heavy" },
+      { label: "Impact Zone",  wind: 0.12, shake: 1.3,  friction: 1, damage: 15, duration: 9,  special: "debris_heavy" },
+      { label: "Debris Field", wind: 0.08, shake: 0.5,  friction: 1, damage: 6,  duration: 8,  special: "radiation" }
+    ]
+  }
+};
+
+// --- Loadouts ---
+const loadouts = [
+  { id: "none",      label: "Standard",       desc: "No bonus — balanced run" },
+  { id: "hull",      label: "Reinforced Hull", desc: "Start with +25 max HP"  },
+  { id: "tank",      label: "Full Tank",       desc: "Start with 130% fuel and slower burn" },
+  { id: "tools",     label: "Sharp Tools",     desc: "First repair scores +25%" },
+  { id: "veteran",   label: "Veteran Parts",   desc: "No part failure for first 20 seconds" }
+];
+
+// Saved custom part sketches (persist across sessions)
+let savedParts = JSON.parse(localStorage.getItem("patchdrive-saved-parts") || "[]");
+
+const missionPool = [
+  { desc: "Survive 3 disasters",       key: "disasterCount",  target: 3,   reward: 130 },
+  { desc: "Complete 4 repairs",        key: "repairCount",    target: 4,   reward: 110 },
+  { desc: "Travel 1000 distance",      key: "score",          target: 1000, reward: 90 },
+  { desc: "Collect 6 pickups",         key: "pickupCount",    target: 6,   reward: 100 },
+  { desc: "Land a 90%+ quality repair",key: "perfectRepair",  target: 1,   reward: 160 },
+  { desc: "Survive 2 minutes",         key: "time",           target: 120, reward: 110 },
+  { desc: "Boost for 15 seconds",      key: "boostTime",      target: 15,  reward: 100 },
+  { desc: "Survive 5 disasters",       key: "disasterCount",  target: 5,   reward: 200 },
+  { desc: "Complete 6 repairs",        key: "repairCount",    target: 6,   reward: 180 },
+  { desc: "Travel 2500 distance",      key: "score",          target: 2500, reward: 150 }
+];
 
 const worldCanvas = document.querySelector("#worldCanvas");
 const world = worldCanvas.getContext("2d");
@@ -49,6 +155,9 @@ let selectedVehicleId = "car";
 let bank = Number(localStorage.getItem("patchdrive-bank") || 0);
 let upgrades = JSON.parse(localStorage.getItem("patchdrive-upgrades") || "{}");
 let bestScores = JSON.parse(localStorage.getItem("patchdrive-best-scores") || "{}");
+let unlockedVehicles = new Set(JSON.parse(localStorage.getItem("patchdrive-unlocks") || '["car","bike","truck","airplane","jet","spaceship"]'));
+let paused = false;
+let selectedLoadout = "none";
 let state = null;
 let drawing = false;
 let strokes = [];
@@ -65,7 +174,14 @@ const pickupTypes = [
 // --- Upgrades & persistence ---
 
 function getLevels(id = selectedVehicleId) {
-  upgrades[id] ||= { engine: 1, armor: 1, stability: 1, repair: 1 };
+  const v = vehicles.find(v => v.id === id);
+  const type = v?.type || "ground";
+  const typeDefaults = Object.fromEntries((typeUpgrades[type] || []).map(u => [u.key, 1]));
+  upgrades[id] ||= {};
+  const defaults = { engine: 1, armor: 1, stability: 1, repair: 1, ...typeDefaults };
+  for (const k of Object.keys(defaults)) {
+    if (!(k in upgrades[id])) upgrades[id][k] = defaults[k];
+  }
   return upgrades[id];
 }
 
@@ -73,6 +189,7 @@ function saveProgress() {
   localStorage.setItem("patchdrive-bank", String(bank));
   localStorage.setItem("patchdrive-upgrades", JSON.stringify(upgrades));
   localStorage.setItem("patchdrive-best-scores", JSON.stringify(bestScores));
+  localStorage.setItem("patchdrive-unlocks", JSON.stringify([...unlockedVehicles]));
 }
 
 // --- Garage UI ---
@@ -81,10 +198,24 @@ function renderGarage() {
   document.querySelector("#bankCoins").textContent = bank;
   vehicleGrid.innerHTML = "";
   vehicles.forEach(vehicle => {
+    const locked = !unlockedVehicles.has(vehicle.id);
     const button = document.createElement("button");
-    button.className = `vehicle-card ${vehicle.id === selectedVehicleId ? "selected" : ""}`;
-    button.innerHTML = `<strong>${vehicle.name}</strong><span class="vc-type">${vehicle.type.toUpperCase()}</span><span class="vc-stats">Mass ${vehicle.mass.toFixed(1)} · Stability ${Math.round(vehicle.stability * 100)}</span>`;
-    button.addEventListener("click", () => { selectedVehicleId = vehicle.id; renderGarage(); });
+    button.className = `vehicle-card ${vehicle.id === selectedVehicleId ? "selected" : ""} ${locked ? "locked" : ""}`;
+    button.innerHTML = `<strong>${vehicle.name}</strong><span class="vc-type">${vehicle.type.toUpperCase()}</span><span class="vc-stats">${locked ? `Unlock: ${vehicle.unlockCost} coins` : `Mass ${vehicle.mass.toFixed(1)} · Stability ${Math.round(vehicle.stability * 100)}`}</span>`;
+    button.addEventListener("click", () => {
+      if (locked) {
+        if (bank >= vehicle.unlockCost) {
+          bank -= vehicle.unlockCost;
+          unlockedVehicles.add(vehicle.id);
+          saveProgress();
+          selectedVehicleId = vehicle.id;
+          renderGarage();
+        }
+        return;
+      }
+      selectedVehicleId = vehicle.id;
+      renderGarage();
+    });
     vehicleGrid.appendChild(button);
   });
 
@@ -98,10 +229,35 @@ function renderGarage() {
   ["engine", "armor", "stability", "repair"].forEach(key => {
     document.querySelector(`#${key}Level`).textContent = levels[key];
     const cost = upgradeCost(levels[key]);
-    document.querySelector(`#${key}Cost`).textContent = `${cost} coins`;
+    document.querySelector(`#${key}Cost`).textContent = `${cost}`;
     const btn = document.querySelector(`[data-upgrade="${key}"]`);
     btn.title = `Upgrade for ${cost} coins`;
     btn.disabled = bank < cost;
+  });
+
+  // Type-specific upgrades
+  const typeGrid = document.querySelector("#typeUpgradeGrid");
+  const typeLabel = document.querySelector("#typeUpgradeLabel");
+  typeGrid.innerHTML = "";
+  const tUpgrades = typeUpgrades[vehicle.type] || [];
+  typeLabel.style.display = tUpgrades.length ? "" : "none";
+  tUpgrades.forEach(u => {
+    const level = levels[u.key] || 1;
+    const cost = upgradeCost(level);
+    const btn = document.createElement("button");
+    btn.className = "upgrade-button";
+    btn.dataset.upgrade = u.key;
+    btn.title = u.desc;
+    btn.disabled = bank < cost;
+    btn.innerHTML = `<span>${u.label} <em>${cost}</em></span><strong>${level}</strong>`;
+    btn.addEventListener("click", () => {
+      if (bank < cost) return;
+      bank -= cost;
+      levels[u.key] = (levels[u.key] || 1) + 1;
+      saveProgress();
+      renderGarage();
+    });
+    typeGrid.appendChild(btn);
   });
 }
 
@@ -109,13 +265,27 @@ function upgradeCost(level) { return 80 + level * level * 45; }
 
 // --- Run ---
 
+function getBiome() {
+  if (!state) return biomes.ground[0];
+  const list = biomes[state.vehicle.type] || biomes.ground;
+  let b = list[0];
+  for (const zone of list) {
+    if (state.score >= zone.scoreStart) b = zone;
+  }
+  return b;
+}
+
 function startRun() {
   const vehicle = vehicles.find(v => v.id === selectedVehicleId);
   const levels = getLevels();
+  const loadout = loadouts.find(l => l.id === (selectedLoadout || "none"));
+
+  const baseHp  = 100 + (levels.armor - 1) * 18 + (loadout.id === "hull" ? 25 : 0);
+  const baseFuel = loadout.id === "tank" ? 130 : 100;
+
   state = {
     vehicle, levels,
-    hp: 100 + (levels.armor - 1) * 18,
-    maxHp: 100 + (levels.armor - 1) * 18,
+    hp: baseHp, maxHp: baseHp,
     partHealth: 100,
     score: 0, runCoins: 0,
     x: 170,
@@ -123,32 +293,58 @@ function startRun() {
     vx: 2.2, vy: 0, angle: 0, spin: 0,
     terrainOffset: 0,
     disaster: null, disasterTimer: 9,
-    nextFailure: 5, pickupTimer: 1.4, debrisTimer: 3,
+    nextFailure: loadout.id === "veteran" ? 25 : 5,
+    pickupTimer: 1.4, debrisTimer: 3,
     pickups: [], debris: [],
     particles: [],
     shakeAmount: 0,
     repairOverlay: null,
     wheelAngle: 0,
     rotorAngle: 0,
-    fuel: 100, heat: 0,
+    fuel: baseFuel, heat: 0,
     event: "Systems online.",
     failedPart: null,
     repairQuality: 1,
     last: performance.now(),
-    over: false
+    over: false,
+    loadout: loadout.id,
+    firstRepairDone: false,
+    // biome
+    biomeName: "",
+    // boss
+    bossEvent: null,
+    bossTimer: 900 + Math.random() * 200,
+    // checkpoint
+    checkpointNext: 700,
+    checkpointShown: new Set(),
+    atCheckpoint: false,
+    // auto-repair
+    autoRepairLevel: levels.autoRepair || 1,
+    // stats
+    disasterCount: 0,
+    repairCount: 0,
+    pickupCount: 0,
+    bestRepairQuality: 0,
+    boostTime: 0,
+    time: 0,
+    // mission
+    mission: pickMission()
   };
   garage.classList.add("hidden");
   game.classList.remove("hidden");
   gameOver.classList.add("hidden");
+  paused = false;
   if ("ontouchstart" in window) touchControls.classList.remove("hidden");
   clearDrawing();
   updateRepairText();
   cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(loop);
+  SFX.startEngine(v.id);
 }
 
 function loop(now) {
   if (!state || state.over) return;
+  if (paused) { state.last = now; animationId = requestAnimationFrame(loop); return; }
   const dt = Math.min(0.033, (now - state.last) / 1000);
   state.last = now;
   update(dt);
@@ -161,12 +357,23 @@ function loop(now) {
 function update(dt) {
   const v = state.vehicle;
   const levels = state.levels;
-  const disasterForce = state.disaster || { wind: 0, shake: 0, friction: 1, damage: 0 };
+  const disasterForce = state.bossEvent
+    ? state.bossEvent.phases[state.bossEvent.phase]
+    : (state.disaster || { wind: 0, shake: 0, friction: 1, damage: 0 });
   const engineBoost = 1 + (levels.engine - 1) * 0.12;
   const stabilityBoost = 1 + (levels.stability - 1) * 0.13;
   const qualityPenalty = 1.25 - state.repairQuality * 0.45;
+  const gripBonus    = v.type === "ground" ? (levels.tireGrip   || 1) * 0.04 - 0.04 : 0;
+  const suspBonus    = v.type === "ground" ? (levels.suspension || 1) * 0.05 - 0.05 : 0;
+  const liftBonus    = v.type === "air"    ? (levels.liftBoost  || 1) * 0.006 - 0.006 : 0;
+  const fuelSave     = v.type === "air"    ? (levels.fuelEfficiency || 1) * 0.06 - 0.06 : 0;
+  const thrustBonus  = v.type === "space"  ? (levels.thrusterPower  || 1) * 0.06 - 0.06 : 0;
+  const shieldBonus  = v.type === "space"  ? (levels.shieldStrength || 1) * 0.05 - 0.05 : 0;
+  const isIced       = disasterForce.special === "ice";
+  const engineMult   = disasterForce.special === "engine_ice" ? 0.55 : 1;
   const input = readInput();
   const boost = input.boost && state.fuel > 4 && state.heat < 92 ? 1.45 : 1;
+  SFX.updateEngine(input.throttle, boost, state.vx);
   const throttle = state.fuel > 0 ? input.throttle : 0.18;
   const speedPressure = Math.min(1.8, Math.max(0, state.vx - 2) * 0.05);
 
@@ -177,24 +384,42 @@ function update(dt) {
   state.nextFailure -= dt;
   state.pickupTimer -= dt;
   state.debrisTimer -= dt;
-  state.fuel -= dt * (0.9 + throttle * boost * 2.2);
+  state.fuel -= dt * (0.9 + throttle * boost * 2.2) * (1 - fuelSave);
+  if (disasterForce.special === "fuel_drain") state.fuel -= dt * 3.5;
   state.heat += dt * (throttle * boost * 9 + Math.abs(state.spin) * 2 + speedPressure);
+  if (disasterForce.special === "overheat") state.heat += dt * 12;
   state.heat -= dt * (v.type === "space" ? 3.2 : 5.1);
   state.fuel = clamp(state.fuel, 0, 100);
   state.heat = clamp(state.heat, 0, 100);
   state.wheelAngle += state.vx * dt * 3.5;
   state.rotorAngle += dt * (8 + throttle * 14);
   state.shakeAmount = Math.max(0, state.shakeAmount - dt * 24);
+  state.time += dt;
+  if (input.boost && state.fuel > 4 && state.heat < 92) state.boostTime += dt;
 
   if (state.disasterTimer <= 0) {
     const list = disasters[v.type];
     state.disaster = list[Math.floor(Math.random() * list.length)];
     state.disasterTimer = Math.max(5, 10 - state.score * 0.002) + Math.random() * 7;
-    const dmg = state.disaster.damage / (v.armor + (levels.armor - 1) * 0.22);
+    const shieldMult = 1 - shieldBonus;
+    const dmg = state.disaster.damage / (v.armor + (levels.armor - 1) * 0.22) * shieldMult;
     state.hp -= dmg;
     state.shakeAmount += state.disaster.shake * 12;
     emitSparks(state.x, state.y, Math.ceil(state.disaster.shake * 8));
     state.event = `${state.disaster.name} incoming.`;
+    state.disasterCount++;
+    updateMission();
+    SFX.playDisasterStart();
+    // Special instant effects
+    if (state.disaster.special === "lightning") {
+      state.hp -= 8 * shieldMult;
+      state.heat = Math.min(100, state.heat + 20);
+      state.shakeAmount += 10;
+    }
+    if (state.disaster.special === "radiation") {
+      state.hp -= 12 * shieldMult;
+      state.shakeAmount += 8;
+    }
   }
 
   if (state.disaster && state.disasterTimer < 3) state.disaster = null;
@@ -207,26 +432,57 @@ function update(dt) {
     state.shakeAmount += 6;
     emitSparks(state.x, state.y, 10);
     state.event = `${state.failedPart} failed. Draw a fix.`;
+    SFX.playPartFailure();
     updateRepairText();
   }
 
   if (state.pickupTimer <= 0) spawnPickup();
-  if (state.disaster && state.debrisTimer <= 0) spawnDebris();
+  if ((state.disaster || state.bossEvent) && state.debrisTimer <= 0) spawnDebris();
+
+  // Biome transition notification
+  const curBiome = getBiome();
+  if (curBiome.name !== state.biomeName) {
+    state.biomeName = curBiome.name;
+    state.event = `Entering ${curBiome.name}.`;
+    SFX.playBiomeTransition();
+  }
+
+  // Boss event tick
+  state.bossTimer -= dt;
+  if (!state.bossEvent && state.bossTimer <= 0) triggerBoss();
+  if (state.bossEvent) updateBoss(dt);
+
+  // Checkpoint check
+  if (state.score >= state.checkpointNext && !state.checkpointShown.has(state.checkpointNext) && !state.bossEvent) {
+    state.checkpointShown.add(state.checkpointNext);
+    state.checkpointNext += 700;
+    openCheckpoint();
+    return; // skip this frame's physics
+  }
+
+  // Auto-repair (self-repair upgrade)
+  const arLevel = state.autoRepairLevel || 1;
+  if (arLevel > 1 && state.fuel > 8 && state.failedPart) {
+    const rate = (arLevel - 1) * 0.5;
+    state.partHealth = Math.min(100, state.partHealth + rate * dt);
+    state.fuel -= rate * 0.06 * dt;
+  }
 
   const shake = Math.sin(performance.now() * 0.018) * disasterForce.shake;
 
   if (v.type === "ground") {
     const groundY = terrainY(state.x + state.terrainOffset);
     const gravity = 0.62 * v.mass;
-    const friction = v.grip * disasterForce.friction;
-    state.vx += v.thrust * engineBoost * friction * throttle * boost * dt * 9;
+    const friction = (v.grip + gripBonus) * disasterForce.friction * (isIced ? 0.4 : 1);
+    state.vx += v.thrust * engineBoost * engineMult * friction * throttle * boost * dt * 9;
     if (input.brake) state.vx *= 1 - 2.2 * dt * friction;
     state.vx *= 1 - (v.drag + (1 - friction) * 0.05) * qualityPenalty;
     state.vy += gravity;
     if (state.y >= groundY) {
       const impact = Math.max(0, state.vy - 7);
-      if (impact > 3) { state.shakeAmount += impact * 0.9; emitSparks(state.x, state.y, Math.ceil(impact * 0.6)); }
-      state.hp -= impact * 0.35 / v.armor;
+      const reducedImpact = impact * (1 - suspBonus);
+      if (reducedImpact > 3) { state.shakeAmount += reducedImpact * 0.9; emitSparks(state.x, state.y, Math.ceil(reducedImpact * 0.6)); SFX.playImpact(reducedImpact * 0.25); }
+      state.hp -= reducedImpact * 0.35 / v.armor;
       state.y = groundY;
       state.vy *= -0.12;
       state.spin += (input.turn * 0.036 + shake * 0.018 - state.angle * 0.02) / stabilityBoost;
@@ -234,11 +490,11 @@ function update(dt) {
   } else if (v.type === "air") {
     const flightThrottle = input.thrusting ? throttle : 0.22;
     const liftInput = v.id === "helicopter" ? 0.35 + flightThrottle * 0.85 : 0.25 + flightThrottle * 0.9;
-    const baseLift = v.id === "helicopter" ? v.lift * 6.1 : Math.max(0.2, state.vx) * v.lift * 3.2;
+    const baseLift = v.id === "helicopter" ? (v.lift + liftBonus) * 6.1 : Math.max(0.2, state.vx) * (v.lift + liftBonus) * 3.2;
     const lift = baseLift * liftInput;
     const descent = input.brake ? 0.42 : 0;
     const groundY = terrainY(state.x + state.terrainOffset);
-    state.vx += (v.thrust * engineBoost * flightThrottle * boost + disasterForce.wind) * dt * 7;
+    state.vx += (v.thrust * engineBoost * engineMult * flightThrottle * boost + disasterForce.wind) * dt * 7;
     state.vy += (0.34 * v.mass - lift + descent) * dt * 3.4 + shake * 0.02;
     state.vx *= 1 - v.drag * qualityPenalty;
     state.vy *= 0.985;
@@ -254,7 +510,7 @@ function update(dt) {
       if (impact > 1.2) state.event = "Hard landing damaged the frame.";
     }
   } else {
-    state.vx += (v.thrust * engineBoost * throttle * boost + disasterForce.wind) * dt * 5;
+    state.vx += ((v.thrust + thrustBonus) * engineBoost * throttle * boost + disasterForce.wind) * dt * 5;
     state.vy += input.turn * 0.018 + Math.sin(state.score * 0.03) * 0.014 + shake * 0.015;
     state.vx *= 1 - v.drag;
     state.vy *= 0.999;
@@ -284,6 +540,7 @@ function update(dt) {
 
   updatePickupsAndDebris(dt);
   updateParticles(dt);
+  updateMission();
 
   if (state.y < 40 || state.y > worldCanvas.height - 24 || Math.abs(state.angle) > 1.5) {
     state.hp -= dt * 18;
@@ -291,6 +548,14 @@ function update(dt) {
 
   state.hp = Math.min(state.maxHp, state.hp);
   if (state.hp <= 0 || state.partHealth <= 0) endRun();
+
+  // Low HP warning beep
+  state._lowHpBeepTimer = (state._lowHpBeepTimer || 0) - dt;
+  if (state.hp / state.maxHp < 0.25 && state._lowHpBeepTimer <= 0) {
+    SFX.playLowHpBeep();
+    state._lowHpBeepTimer = 0.85;
+  }
+
   updateHud();
 }
 
@@ -309,6 +574,80 @@ function readInput() {
 }
 
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+// --- Boss Events ---
+
+function triggerBoss() {
+  const template = bossEvents[state.vehicle.type];
+  if (!template) return;
+  state.bossEvent = {
+    name: template.name,
+    phases: template.phases,
+    phase: 0,
+    phaseTimer: template.phases[0].duration,
+    active: true
+  };
+  state.disaster = null;
+  state.disasterTimer = 999;
+  state.bossTimer = 1200 + Math.random() * 400;
+  state.shakeAmount += 14;
+  emitSparks(state.x, state.y, 16);
+  state.event = `BOSS: ${template.name}!`;
+  SFX.playBossStart();
+}
+
+function updateBoss(dt) {
+  const boss = state.bossEvent;
+  boss.phaseTimer -= dt;
+  const phase = boss.phases[boss.phase];
+
+  // Constant HP drain from boss
+  const dmg = phase.damage * 0.025;
+  state.hp -= dmg * dt;
+  state.shakeAmount = Math.max(state.shakeAmount, phase.shake * 6);
+
+  // Extra debris during heavy phases
+  if (boss.phase >= 1 && state.debrisTimer <= 0) spawnDebris();
+
+  if (boss.phaseTimer <= 0) {
+    boss.phase++;
+    if (boss.phase >= boss.phases.length) {
+      // Boss done
+      state.bossEvent = null;
+      state.disasterTimer = 6;
+      state.runCoins += 80;
+      state.disasterCount++;
+      updateMission();
+      state.event = `${boss.name} defeated! +80 coins.`;
+    } else {
+      boss.phaseTimer = boss.phases[boss.phase].duration;
+      state.event = `${boss.name} — ${boss.phases[boss.phase].label}`;
+      state.shakeAmount += 10;
+      emitSparks(state.x, state.y, 12);
+    }
+  }
+}
+
+// --- Checkpoint ---
+
+function openCheckpoint() {
+  paused = true;
+  SFX.playCheckpoint();
+  const el = document.querySelector("#checkpoint");
+  document.querySelector("#cpScore").textContent = Math.floor(state.score);
+  document.querySelector("#cpHp").textContent = `${Math.max(0, Math.floor(state.hp))} / ${state.maxHp}`;
+  document.querySelector("#cpCoins").textContent = Math.floor(state.runCoins);
+  document.querySelector("#cpHealCost").textContent = "50";
+  document.querySelector("#cpFixCost").textContent = "30";
+  document.querySelector("#cpHealBtn").disabled = state.runCoins < 50 || state.hp >= state.maxHp;
+  document.querySelector("#cpFixBtn").disabled  = state.runCoins < 30 || !state.failedPart;
+  el.classList.remove("hidden");
+}
+
+function closeCheckpoint() {
+  paused = false;
+  document.querySelector("#checkpoint").classList.add("hidden");
+}
 
 // --- Pickups & Debris ---
 
@@ -355,6 +694,7 @@ function updatePickupsAndDebris(dt) {
       state.shakeAmount += 7;
       emitSparks(state.x, state.y, 12);
       state.event = "Debris impact.";
+      SFX.playDebrisHit();
       return false;
     }
     return d.x > -100 && d.y < worldCanvas.height + 100;
@@ -363,6 +703,8 @@ function updatePickupsAndDebris(dt) {
 
 function collectPickup(p) {
   emitCoinPop(p.x, p.y);
+  SFX.playPickup(p.type);
+  state.pickupCount++;
   if (p.type === "coin") {
     state.runCoins += p.value;
     state.event = `Collected ${p.value} coins.`;
@@ -378,7 +720,17 @@ function collectPickup(p) {
 }
 
 function distance(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
-function terrainY(x) { return 375 + Math.sin(x * 0.011) * 34 + Math.sin(x * 0.031) * 12; }
+
+function terrainY(x) {
+  if (!state) return 375 + Math.sin(x * 0.011) * 34 + Math.sin(x * 0.031) * 12;
+  const b = getBiome();
+  // Biome modifies amplitude and frequency for visual variety
+  const ampScale  = b.name === "Desert" ? 0.6 : b.name === "Ice Fields" ? 0.45 : b.name === "City Rubble" ? 1.4 : b.name === "Volcanic" ? 1.6 : 1;
+  const freqScale = b.name === "City Rubble" ? 1.6 : b.name === "Volcanic" ? 1.4 : 1;
+  const amp  = 34 * ampScale;
+  const freq = 0.011 * freqScale;
+  return 375 + Math.sin(x * freq) * amp + Math.sin(x * freq * 2.8) * (amp * 0.36);
+}
 
 // --- Particle system ---
 
@@ -466,6 +818,49 @@ function render() {
   drawParticles();
   drawVehicle();
   world.restore();
+
+  if (state.bossEvent) drawBossHud(W);
+}
+
+function drawBossHud(W) {
+  const boss = state.bossEvent;
+  const phase = boss.phases[boss.phase];
+  const totalDuration = boss.phases.reduce((s, p) => s + p.duration, 0);
+  const elapsed = boss.phases.slice(0, boss.phase).reduce((s, p) => s + p.duration, 0)
+    + (phase.duration - boss.phaseTimer);
+  const progress = Math.min(1, elapsed / totalDuration);
+
+  // Boss bar background
+  world.save();
+  world.fillStyle = "rgba(0,0,0,0.55)";
+  world.fillRect(W / 2 - 180, 10, 360, 44);
+  world.strokeStyle = "#f46a55";
+  world.lineWidth = 1.5;
+  world.strokeRect(W / 2 - 180, 10, 360, 44);
+
+  // Boss name
+  world.fillStyle = "#f46a55";
+  world.font = "700 13px system-ui";
+  world.textAlign = "center";
+  world.fillText(`BOSS — ${boss.name.toUpperCase()} — ${phase.label.toUpperCase()}`, W / 2, 26);
+
+  // Progress bar
+  world.fillStyle = "#2a1010";
+  world.fillRect(W / 2 - 160, 32, 320, 14);
+  world.fillStyle = `hsl(${10 + progress * 20},90%,${45 + Math.sin(performance.now() * 0.01) * 8}%)`;
+  world.fillRect(W / 2 - 160, 32, 320 * (1 - progress), 14);
+  world.strokeStyle = "#f46a55";
+  world.lineWidth = 1;
+  world.strokeRect(W / 2 - 160, 32, 320, 14);
+
+  // Phase dots
+  boss.phases.forEach((_, i) => {
+    world.beginPath();
+    world.arc(W / 2 - 20 + i * 20, 53, 4, 0, Math.PI * 2);
+    world.fillStyle = i <= boss.phase ? "#f46a55" : "#4a2020";
+    world.fill();
+  });
+  world.restore();
 }
 
 function drawBackground(W, H) {
@@ -528,10 +923,14 @@ function drawBackground(W, H) {
     }
     world.restore();
   } else {
+    const biome = getBiome();
     const isSand = state.disaster?.name.includes("Sand") || state.disaster?.name.includes("Meteor");
+    const isBoss = !!state.bossEvent;
+    const skyTop = isBoss ? "#1a0a08" : isSand ? "#2a1c0e" : (biome.skyTop || "#1a3040");
+    const skyBot = isBoss ? "#2a1008" : isSand ? "#3a2814" : (biome.skyBot || "#1e3a24");
     const sky = world.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, isSand ? "#2a1c0e" : "#1a3040");
-    sky.addColorStop(0.7, isSand ? "#3a2814" : "#1e3a24");
+    sky.addColorStop(0, skyTop);
+    sky.addColorStop(0.7, skyBot);
     sky.addColorStop(1, "#243024");
     world.fillStyle = sky;
     world.fillRect(0, 0, W, H);
@@ -607,7 +1006,9 @@ function drawTerrain(W, H) {
   world.lineTo(W, H);
   world.closePath();
   const isFlood = state.disaster?.name === "Flood";
-  world.fillStyle = isFlood ? "#1a3a4a" : state.vehicle.type === "ground" ? "#394232" : "#26382f";
+  const biome   = state.vehicle.type === "ground" ? getBiome() : null;
+  const groundCol = isFlood ? "#1a3a4a" : (biome?.groundColor || (state.vehicle.type === "ground" ? "#394232" : "#26382f"));
+  world.fillStyle = groundCol;
   world.fill();
 
   if (state.vehicle.type === "ground") {
@@ -615,15 +1016,39 @@ function drawTerrain(W, H) {
     for (let x = 0; x <= W; x += 10) {
       x === 0 ? world.moveTo(0, terrainY(offset)) : world.lineTo(x, terrainY(x + offset));
     }
-    world.strokeStyle = "#4a5c42";
+    // Surface line color per biome
+    const lineCol = biome?.name === "Ice Fields" ? "#a8d0e0"
+      : biome?.name === "Desert"     ? "#7a6040"
+      : biome?.name === "City Rubble"? "#5a5850"
+      : biome?.name === "Volcanic"   ? "#6a2808"
+      : "#4a5c42";
+    world.strokeStyle = lineCol;
     world.lineWidth = 2;
     world.stroke();
 
-    drawGroundRocks(W, offset, isFlood);
+    drawGroundRocks(W, offset, isFlood, biome);
+
+    // Boss visual overlay — fire cracks in Volcanic, ice sheen in Ice Fields
+    if (state.bossEvent) {
+      world.save();
+      world.globalAlpha = 0.3 + Math.sin(state.score * 0.2) * 0.15;
+      world.strokeStyle = "#ff4808";
+      world.lineWidth = 2;
+      for (let i = 0; i < 8; i++) {
+        const cx = ((i * 140 + state.score * 8) % W + W) % W;
+        const cy = terrainY(cx + offset) - 4;
+        world.beginPath();
+        world.moveTo(cx, cy);
+        world.lineTo(cx + 30, cy - 18);
+        world.lineTo(cx + 50, cy - 6);
+        world.stroke();
+      }
+      world.restore();
+    }
   }
 }
 
-function drawGroundRocks(W, offset, isFlood) {
+function drawGroundRocks(W, offset, isFlood, biome) {
   if (isFlood) return;
   const isMeteor = state.disaster?.name.includes("Meteor");
   const isSand   = state.disaster?.name.includes("Sand");
@@ -655,7 +1080,7 @@ function drawGroundRocks(W, offset, isFlood) {
       s === 0 ? world.moveTo(rx, ry) : world.lineTo(rx, ry);
     }
     world.closePath();
-    world.fillStyle = isMeteor ? "#5a4832" : isSand ? "#7a6848" : "#3a4838";
+    world.fillStyle = biome?.rockColor || (isMeteor ? "#5a4832" : isSand ? "#7a6848" : "#3a4838");
     world.strokeStyle = isMeteor ? "#3a2e20" : "#2a3228";
     world.lineWidth = 1.5;
     world.fill();
@@ -735,9 +1160,11 @@ function drawVehicle() {
   if (v.id === "car")        drawCar(bodyColor);
   else if (v.id === "bike")  drawBike(bodyColor);
   else if (v.id === "truck") drawTruck(bodyColor);
+  else if (v.id === "buggy") drawBuggy(bodyColor);
   else if (v.id === "airplane")   drawAirplane(bodyColor);
   else if (v.id === "jet")        drawJet(bodyColor);
   else if (v.id === "helicopter") drawHelicopter(bodyColor);
+  else if (v.id === "orbital")    drawOrbital(bodyColor);
   else                            drawSpaceship(bodyColor);
 
   if (state.repairOverlay?.strokes.length > 0) {
@@ -833,6 +1260,86 @@ function drawTruck(color) {
   drawWheel(-10, 18, 13);
   drawWheel(34, 18, 13);
   drawWheel(50, 18, 13);
+}
+
+function drawBuggy(color) {
+  // Open roll cage frame
+  world.fillStyle = "#2a3228";
+  world.beginPath();
+  world.moveTo(-38, -22); world.lineTo(38, -22);
+  world.lineTo(38, 8);    world.lineTo(-38, 8);
+  world.closePath();
+  world.fill(); world.stroke();
+  // Cage bars
+  world.strokeStyle = "#4a5a48";
+  world.lineWidth = 4;
+  world.beginPath();
+  world.moveTo(-20, -22); world.lineTo(-20, 8);
+  world.moveTo(20, -22);  world.lineTo(20, 8);
+  world.moveTo(-38, -10); world.lineTo(38, -10);
+  world.stroke();
+  world.lineWidth = 3;
+  world.strokeStyle = "#0d1210";
+  // Body floor
+  world.fillStyle = color;
+  roundRect(world, -36, -8, 72, 16, 4);
+  world.fill(); world.stroke();
+  // Driver silhouette
+  world.fillStyle = "#1a2018";
+  world.beginPath();
+  world.ellipse(0, -18, 8, 10, 0, 0, Math.PI * 2);
+  world.fill();
+  // Big off-road wheels
+  drawWheel(-30, 18, 16);
+  drawWheel(30, 18, 16);
+}
+
+function drawOrbital(color) {
+  const throttle = readInput().throttle;
+  // Twin engine glows
+  world.save();
+  world.globalAlpha = 0.6;
+  [-10, 10].forEach(dy => {
+    const g = world.createRadialGradient(-48, dy, 0, -48, dy, 14 + throttle * 10);
+    g.addColorStop(0, "#58ffcc");
+    g.addColorStop(0.5, "#2080ff");
+    g.addColorStop(1, "transparent");
+    world.fillStyle = g;
+    world.beginPath();
+    world.arc(-48, dy, 14 + throttle * 10, 0, Math.PI * 2);
+    world.fill();
+  });
+  world.restore();
+  // Sleek wedge hull
+  world.fillStyle = color;
+  world.beginPath();
+  world.moveTo(62, 0);
+  world.lineTo(30, -12);
+  world.lineTo(-20, -16);
+  world.lineTo(-46, -8);
+  world.lineTo(-50, 0);
+  world.lineTo(-46, 8);
+  world.lineTo(-20, 16);
+  world.lineTo(30, 12);
+  world.closePath();
+  world.fill(); world.stroke();
+  // Fin wings (compact)
+  world.fillStyle = "#486888";
+  world.beginPath();
+  world.moveTo(-10, -16); world.lineTo(-22, -40); world.lineTo(-38, -36); world.lineTo(-24, -16);
+  world.closePath(); world.fill();
+  world.beginPath();
+  world.moveTo(-10, 16); world.lineTo(-22, 40); world.lineTo(-38, 36); world.lineTo(-24, 16);
+  world.closePath(); world.fill();
+  // Engine nacelles
+  world.fillStyle = "#2a3840";
+  world.fillRect(-50, -12, 14, 8);
+  world.fillRect(-50, 4, 14, 8);
+  // Cockpit strip
+  world.fillStyle = "rgba(160,255,220,0.6)";
+  world.beginPath();
+  world.ellipse(32, 0, 18, 7, 0, 0, Math.PI * 2);
+  world.fill();
 }
 
 function drawAirplane(color) {
@@ -1074,8 +1581,56 @@ function updateHud() {
   document.querySelector("#partHealth").textContent = Math.max(0, Math.floor(state.partHealth));
   document.querySelector("#fuel").textContent = Math.max(0, Math.floor(state.fuel));
   document.querySelector("#heat").textContent = Math.max(0, Math.floor(state.heat));
-  document.querySelector("#disaster").textContent = state.disaster ? state.disaster.name : "Clear";
+
+  const disEl = document.querySelector("#disaster");
+  const warning = !state.disaster && state.disasterTimer < 2.5;
+  if (warning) {
+    disEl.textContent = "! WARNING";
+    disEl.parentElement.classList.add("hud-warn");
+  } else {
+    disEl.textContent = state.disaster ? state.disaster.name : "Clear";
+    disEl.parentElement.classList.remove("hud-warn");
+  }
+
   document.querySelector("#eventLog").textContent = state.event;
+
+  const m = state.mission;
+  const mEl = document.querySelector("#missionDisplay");
+  if (m) {
+    const current = getMissionProgress();
+    const pct = Math.min(100, Math.floor((current / m.target) * 100));
+    mEl.textContent = m.done
+      ? `Mission complete! +${m.reward} coins`
+      : `Mission: ${m.desc} [${current}/${m.target}]`;
+    mEl.classList.toggle("mission-done", m.done);
+  }
+}
+
+function getMissionProgress() {
+  if (!state?.mission) return 0;
+  const m = state.mission;
+  switch (m.key) {
+    case "disasterCount":  return state.disasterCount;
+    case "repairCount":    return state.repairCount;
+    case "score":          return Math.floor(state.score);
+    case "pickupCount":    return state.pickupCount;
+    case "perfectRepair":  return state.bestRepairQuality >= 0.9 ? 1 : 0;
+    case "time":           return Math.floor(state.time);
+    case "boostTime":      return Math.floor(state.boostTime);
+    case "runCoins":       return Math.floor(state.runCoins);
+    default:               return 0;
+  }
+}
+
+function updateMission() {
+  if (!state?.mission || state.mission.done) return;
+  const progress = getMissionProgress();
+  if (progress >= state.mission.target) {
+    state.mission.done = true;
+    state.runCoins += state.mission.reward;
+    state.event = `Mission complete! +${state.mission.reward} coins.`;
+    SFX.playMissionComplete();
+  }
 }
 
 function updateRepairText() {
@@ -1214,6 +1769,59 @@ function scoreDrawing() {
   return Math.max(0.15, Math.min(1, final));
 }
 
+// --- Saved Parts ---
+
+function saveCurrentPart() {
+  if (strokes.length === 0) return;
+  const name = document.querySelector("#savedPartName").value.trim() || "Part";
+  if (savedParts.length >= 6) savedParts.shift();
+  savedParts.push({ name: name.slice(0, 16), strokes: JSON.parse(JSON.stringify(strokes)) });
+  localStorage.setItem("patchdrive-saved-parts", JSON.stringify(savedParts));
+  document.querySelector("#savedPartName").value = "";
+  renderSavedParts();
+}
+
+function loadSavedPart(index) {
+  const part = savedParts[index];
+  if (!part) return;
+  strokes = JSON.parse(JSON.stringify(part.strokes));
+  // Re-render onto draw canvas
+  draw.fillStyle = "#f2ead7";
+  draw.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+  draw.strokeStyle = "#171717";
+  draw.lineWidth = 6;
+  draw.lineCap = "round";
+  draw.lineJoin = "round";
+  drawRepairGuide();
+  strokes.forEach(stroke => {
+    if (stroke.length < 2) return;
+    draw.beginPath();
+    draw.moveTo(stroke[0].x, stroke[0].y);
+    for (let i = 1; i < stroke.length; i++) draw.lineTo(stroke[i].x, stroke[i].y);
+    draw.stroke();
+  });
+}
+
+function deleteSavedPart(index) {
+  savedParts.splice(index, 1);
+  localStorage.setItem("patchdrive-saved-parts", JSON.stringify(savedParts));
+  renderSavedParts();
+}
+
+function renderSavedParts() {
+  const container = document.querySelector("#savedPartsList");
+  if (!container) return;
+  container.innerHTML = "";
+  savedParts.forEach((part, i) => {
+    const row = document.createElement("div");
+    row.className = "saved-part-row";
+    row.innerHTML = `<button class="sp-load" title="Load '${part.name}'">${part.name}</button><button class="sp-del" title="Delete">x</button>`;
+    row.querySelector(".sp-load").addEventListener("click", () => loadSavedPart(i));
+    row.querySelector(".sp-del").addEventListener("click", () => deleteSavedPart(i));
+    container.appendChild(row);
+  });
+}
+
 function shapeExpectation(part) {
   if (!part) return "replacement";
   if (part.includes("wheel") || part.includes("gear") || part.includes("reactor")) return "circle (wheel)";
@@ -1245,8 +1853,13 @@ function installRepair() {
     return;
   }
   const repairBoost = 1 + (state.levels.repair - 1) * 0.12;
-  state.repairQuality = Math.min(1, quality * repairBoost);
+  const toolBonus = (state.loadout === "tools" && !state.firstRepairDone) ? 1.25 : 1;
+  state.firstRepairDone = true;
+  state.repairQuality = Math.min(1, quality * repairBoost * toolBonus);
+  SFX.playInstallRepair(state.repairQuality);
   state.repairOverlay = { strokes: JSON.parse(JSON.stringify(strokes)), part: state.failedPart };
+  state.repairCount++;
+  state.bestRepairQuality = Math.max(state.bestRepairQuality, state.repairQuality);
   state.partHealth = 60 + state.repairQuality * 58;
   state.hp = Math.min(state.maxHp, state.hp + 10 + state.repairQuality * 18);
   state.runCoins += 12 + state.repairQuality * 26;
@@ -1277,16 +1890,40 @@ function healVehicle() {
 
 function endRun() {
   state.over = true;
+  paused = false;
+  SFX.stopEngine();
   cancelAnimationFrame(animationId);
   touchControls.classList.add("hidden");
-  const earned = Math.floor(state.runCoins + state.score * 0.18);
+  document.querySelector("#pauseMenu").classList.add("hidden");
+
+  const missionBonus = state.mission?.done ? state.mission.reward : 0;
+  const earned = Math.floor(state.runCoins + state.score * 0.18 + missionBonus);
   const previousBest = bestScores[state.vehicle.id] || 0;
   const isRecord = state.score > previousBest;
   if (isRecord) bestScores[state.vehicle.id] = Math.floor(state.score);
   bank += earned;
   saveProgress();
+
   document.querySelector("#runSummary").textContent =
-    `Score ${Math.floor(state.score)}${isRecord ? " · new best!" : ""} · earned ${earned} coins. Spend them on upgrades and launch again.`;
+    `Score ${Math.floor(state.score)}${isRecord ? " · new best!" : ""} · earned ${earned} coins.`;
+
+  const statsEl = document.querySelector("#runStats");
+  const bestPct = Math.round(state.bestRepairQuality * 100);
+  const mText = state.mission
+    ? (state.mission.done ? `${state.mission.desc} — DONE (+${state.mission.reward})` : `${state.mission.desc} — missed`)
+    : "—";
+  statsEl.innerHTML = `
+    <div class="stat-row"><span>Distance</span><strong>${Math.floor(state.score)}</strong></div>
+    <div class="stat-row"><span>Time survived</span><strong>${Math.floor(state.time)}s</strong></div>
+    <div class="stat-row"><span>Disasters survived</span><strong>${state.disasterCount}</strong></div>
+    <div class="stat-row"><span>Repairs made</span><strong>${state.repairCount}</strong></div>
+    <div class="stat-row"><span>Best repair quality</span><strong>${bestPct}%</strong></div>
+    <div class="stat-row"><span>Pickups collected</span><strong>${state.pickupCount}</strong></div>
+    <div class="stat-row mission-row"><span>Mission</span><strong>${mText}</strong></div>
+    <div class="stat-row total-row"><span>Coins earned</span><strong>${earned}</strong></div>
+  `;
+
+  saveToLeaderboard(Math.floor(state.score), state.vehicle.id, Math.floor(state.time));
   gameOver.classList.remove("hidden");
   renderGarage();
 }
@@ -1312,13 +1949,17 @@ drawCanvas.addEventListener("pointermove", event => {
 window.addEventListener("pointerup", () => {
   if (!drawing) return;
   drawing = false;
-  if (currentStroke.length) strokes.push(currentStroke);
+  if (currentStroke.length) { strokes.push(currentStroke); SFX.playDrawStroke(); }
   currentStroke = [];
 });
 
 window.addEventListener("keydown", event => {
   const key = event.key.toLowerCase();
   if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) event.preventDefault();
+  if (key === "escape" || key === "p") {
+    if (state && !state.over) togglePause();
+    return;
+  }
   keys.add(key);
 });
 
@@ -1357,5 +1998,247 @@ Object.entries(touchMap).forEach(([id, key]) => {
   btn.addEventListener("pointerleave", () => keys.delete(key));
 });
 
+// Checkpoint buttons
+document.querySelector("#cpContinueBtn").addEventListener("click", () => closeCheckpoint());
+document.querySelector("#cpHealBtn").addEventListener("click", () => {
+  if (!state || state.runCoins < 50) return;
+  state.runCoins -= 50;
+  state.hp = state.maxHp;
+  state.event = "Full repair at checkpoint.";
+  document.querySelector("#cpHp").textContent = `${state.maxHp} / ${state.maxHp}`;
+  document.querySelector("#cpHealBtn").disabled = true;
+});
+document.querySelector("#cpFixBtn").addEventListener("click", () => {
+  if (!state || state.runCoins < 30 || !state.failedPart) return;
+  state.runCoins -= 30;
+  state.failedPart = null;
+  state.partHealth = 100;
+  clearDrawing();
+  updateRepairText();
+  document.querySelector("#cpFixBtn").disabled = true;
+  state.event = "Broken part replaced at checkpoint.";
+});
+
+// Saved parts
+document.querySelector("#savePartBtn")?.addEventListener("click", saveCurrentPart);
+
+// Loadout picker
+document.querySelectorAll(".loadout-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    selectedLoadout = btn.dataset.loadout;
+    document.querySelectorAll(".loadout-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+  });
+});
+
+function togglePause() {
+  paused = !paused;
+  const menu = document.querySelector("#pauseMenu");
+  if (paused) {
+    menu.classList.remove("hidden");
+    document.querySelector("#pauseInfo").textContent =
+      `Score ${Math.floor(state.score)} · Run coins ${Math.floor(state.runCoins)}`;
+  } else {
+    menu.classList.add("hidden");
+  }
+}
+
+document.querySelector("#resumeButton").addEventListener("click", () => togglePause());
+document.querySelector("#quitRunButton").addEventListener("click", () => {
+  paused = false;
+  document.querySelector("#pauseMenu").classList.add("hidden");
+  endRun();
+});
+
+// --- Phase 5: Leaderboard, Daily Challenge, Settings, Share ---
+
+let leaderboard = JSON.parse(localStorage.getItem("patchdrive-leaderboard") || "{}");
+
+function saveToLeaderboard(score, vehicleId, time) {
+  const today = new Date().toISOString().slice(0, 10);
+  leaderboard[vehicleId] = leaderboard[vehicleId] || [];
+  leaderboard[vehicleId].push({ score, time, date: today });
+  leaderboard[vehicleId].sort((a, b) => b.score - a.score);
+  leaderboard[vehicleId] = leaderboard[vehicleId].slice(0, 5);
+  localStorage.setItem("patchdrive-leaderboard", JSON.stringify(leaderboard));
+}
+
+function showLeaderboard() {
+  const modal = document.querySelector("#leaderboardModal");
+  const body = document.querySelector("#leaderboardBody");
+  const allEntries = [];
+  vehicles.forEach(v => {
+    (leaderboard[v.id] || []).forEach(e => {
+      allEntries.push({ ...e, vehicleName: v.name, vehicleId: v.id });
+    });
+  });
+  allEntries.sort((a, b) => b.score - a.score);
+
+  if (allEntries.length === 0) {
+    body.innerHTML = '<p style="color:var(--muted);text-align:center;margin:18px 0">No runs yet. Hit the road!</p>';
+  } else {
+    body.innerHTML = allEntries.slice(0, 12).map((e, i) =>
+      `<div class="stat-row${i === 0 ? " total-row" : ""}">
+        <span>${i + 1}. ${e.vehicleName} <em style="font-style:normal;color:var(--muted);font-size:11px">${e.date}</em></span>
+        <strong>${e.score}</strong>
+      </div>`
+    ).join("");
+  }
+  modal.classList.remove("hidden");
+}
+
+// Seeded RNG for daily challenge (mulberry32)
+function seededRNG(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function getDailyDate() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
+function startDailyChallenge() {
+  const seed = getDailyDate();
+  const rng = seededRNG(seed);
+  const availableVehicles = vehicles.filter(v => unlockedVehicles.has(v.id));
+  if (availableVehicles.length === 0) return;
+  const pickedVehicle = availableVehicles[Math.floor(rng() * availableVehicles.length)];
+  const pickedMission = missionPool[Math.floor(rng() * missionPool.length)];
+  selectedVehicleId = pickedVehicle.id;
+  selectedLoadout = "none";
+
+  // Mark UI
+  document.querySelectorAll(".vehicle-card").forEach(c => c.classList.remove("selected"));
+  document.querySelectorAll(".loadout-btn").forEach(b => {
+    b.classList.toggle("selected", b.dataset.loadout === "none");
+  });
+
+  // Inject daily mission override into startRun
+  _dailyMissionOverride = pickedMission;
+  startRun();
+  _dailyMissionOverride = null;
+
+  const todayKey = `patchdrive-daily-${getDailyDate()}`;
+  localStorage.setItem(todayKey + "-vehicle", pickedVehicle.id);
+}
+
+let _dailyMissionOverride = null;
+
+function pickMission() {
+  if (_dailyMissionOverride) return { ..._dailyMissionOverride, current: 0, done: false };
+  const m = missionPool[Math.floor(Math.random() * missionPool.length)];
+  return { ...m, current: 0, done: false };
+}
+
+function shareRun() {
+  if (!state) return;
+  const W = 640, H = 320;
+  const offCanvas = document.createElement("canvas");
+  offCanvas.width = W; offCanvas.height = H;
+  const c = offCanvas.getContext("2d");
+
+  // Background
+  const bg = c.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, "#101311"); bg.addColorStop(1, "#1a201c");
+  c.fillStyle = bg; c.fillRect(0, 0, W, H);
+
+  // Border
+  c.strokeStyle = "#f5b84b"; c.lineWidth = 2;
+  c.strokeRect(2, 2, W - 4, H - 4);
+
+  // Logo text
+  c.font = "800 42px system-ui, sans-serif";
+  c.fillStyle = "#f5b84b"; c.textAlign = "left";
+  c.fillText("PatchDrive", 28, 54);
+
+  // Vehicle + score
+  c.font = "700 18px system-ui, sans-serif";
+  c.fillStyle = "#eef4ec";
+  c.fillText(`${state.vehicle.name}  ·  Score ${Math.floor(state.score)}`, 28, 90);
+
+  // Date
+  c.font = "600 13px system-ui, sans-serif";
+  c.fillStyle = "#aab6aa";
+  c.fillText(new Date().toLocaleDateString(), 28, 114);
+
+  // Stats grid
+  const stats = [
+    ["Distance", Math.floor(state.score)],
+    ["Time", `${Math.floor(state.time)}s`],
+    ["Disasters", state.disasterCount],
+    ["Repairs", state.repairCount],
+    ["Best Quality", `${Math.round(state.bestRepairQuality * 100)}%`],
+    ["Pickups", state.pickupCount]
+  ];
+  const cols = 3;
+  stats.forEach(([label, val], i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const x = 28 + col * 200;
+    const y = 160 + row * 62;
+    c.fillStyle = "#242b26";
+    c.beginPath(); c.roundRect(x, y, 186, 50, 6); c.fill();
+    c.font = "600 11px system-ui, sans-serif"; c.fillStyle = "#aab6aa";
+    c.fillText(label.toUpperCase(), x + 12, y + 18);
+    c.font = "800 20px system-ui, sans-serif"; c.fillStyle = "#eef4ec";
+    c.fillText(String(val), x + 12, y + 40);
+  });
+
+  // Mission result
+  if (state.mission) {
+    c.font = "600 13px system-ui, sans-serif";
+    c.fillStyle = state.mission.done ? "#7fd36b" : "#aab6aa";
+    c.fillText(state.mission.done ? `✓ Mission: ${state.mission.desc}` : `Mission: ${state.mission.desc} — missed`, 28, 298);
+  }
+
+  // Download
+  const link = document.createElement("a");
+  link.download = `patchdrive-run-${Math.floor(state.score)}.png`;
+  link.href = offCanvas.toDataURL("image/png");
+  link.click();
+}
+
+// Settings
+function showSettings() {
+  document.querySelector("#settingsModal").classList.remove("hidden");
+  document.querySelector("#volumeSlider").value = Math.round(SFX.getVolume() * 100);
+}
+
+// Daily challenge badge update
+function updateDailyBadge() {
+  const btn = document.querySelector("#dailyBtn");
+  if (!btn) return;
+  const todayKey = `patchdrive-daily-${getDailyDate()}-score`;
+  const todayScore = localStorage.getItem(todayKey);
+  btn.textContent = todayScore ? `Daily ✓ (${todayScore})` : "Daily Challenge";
+}
+
+// Event listeners for Phase 5 UI
+document.querySelector("#dailyBtn")?.addEventListener("click", () => { SFX.init(); SFX.resume(); startDailyChallenge(); updateDailyBadge(); });
+document.querySelector("#leaderboardBtn")?.addEventListener("click", showLeaderboard);
+document.querySelector("#closeLeaderboard")?.addEventListener("click", () => document.querySelector("#leaderboardModal").classList.add("hidden"));
+document.querySelector("#settingsBtn")?.addEventListener("click", showSettings);
+document.querySelector("#closeSettings")?.addEventListener("click", () => document.querySelector("#settingsModal").classList.add("hidden"));
+document.querySelector("#howToPlayBtn")?.addEventListener("click", () => document.querySelector("#howToPlayModal").classList.remove("hidden"));
+document.querySelector("#closeHowToPlay")?.addEventListener("click", () => document.querySelector("#howToPlayModal").classList.add("hidden"));
+document.querySelector("#shareRunBtn")?.addEventListener("click", shareRun);
+document.querySelector("#volumeSlider")?.addEventListener("input", e => {
+  SFX.setVolume(Number(e.target.value) / 100);
+  const val = document.querySelector("#volumeVal");
+  if (val) val.textContent = e.target.value + "%";
+});
+document.querySelector("#playSplash")?.addEventListener("click", () => {
+  SFX.init(); SFX.resume();
+  document.querySelector("#splashScreen").classList.add("hidden");
+});
+
+// Init
+updateDailyBadge();
 clearDrawing();
 renderGarage();
+renderSavedParts();
