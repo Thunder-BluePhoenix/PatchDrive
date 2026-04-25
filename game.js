@@ -158,6 +158,7 @@ let bestScores = JSON.parse(localStorage.getItem("patchdrive-best-scores") || "{
 let unlockedVehicles = new Set(JSON.parse(localStorage.getItem("patchdrive-unlocks") || '["car","bike","truck","airplane","jet","spaceship"]'));
 let paused = false;
 let selectedLoadout = "none";
+let gameMode = "normal"; // "normal" = auto-pilot + tap pickups | "hell" = manual + auto-collect
 let state = null;
 let drawing = false;
 let strokes = [];
@@ -289,7 +290,7 @@ function startRun() {
     partHealth: 100,
     score: 0, runCoins: 0,
     x: 170,
-    y: vehicle.type === "ground" ? 356 : 230,
+    y: vehicle.type === "ground" ? terrainY(170) - 30 : 220,
     vx: 2.2, vy: 0, angle: 0, spin: 0,
     terrainOffset: 0,
     disaster: null, disasterTimer: 9,
@@ -334,7 +335,19 @@ function startRun() {
   game.classList.remove("hidden");
   gameOver.classList.add("hidden");
   paused = false;
-  if ("ontouchstart" in window) touchControls.classList.remove("hidden");
+  // In normal mode: vehicle is auto-piloted, no touch D-pad needed
+  if ("ontouchstart" in window && gameMode === "hell") touchControls.classList.remove("hidden");
+  else touchControls.classList.add("hidden");
+  // Update control hint and mode badge
+  const hint = document.querySelector("#controlHint");
+  const badge = document.querySelector("#modeBadge");
+  if (hint) hint.childNodes[0].textContent = gameMode === "normal"
+    ? "Auto-pilot active · Draw broken parts · Tap pickups on screen "
+    : "W/Up thrust · A/D balance · S brake · Space boost · P pause ";
+  if (badge) {
+    badge.textContent = gameMode === "normal" ? "Normal" : "Hell 🔥";
+    badge.className = gameMode === "normal" ? "mode-badge" : "mode-badge hell";
+  }
   clearDrawing();
   updateRepairText();
   cancelAnimationFrame(animationId);
@@ -371,7 +384,7 @@ function update(dt) {
   const shieldBonus  = v.type === "space"  ? (levels.shieldStrength || 1) * 0.05 - 0.05 : 0;
   const isIced       = disasterForce.special === "ice";
   const engineMult   = disasterForce.special === "engine_ice" ? 0.55 : 1;
-  const input = readInput();
+  const input = gameMode === "normal" ? autoInput() : readInput();
   const boost = input.boost && state.fuel > 4 && state.heat < 92 ? 1.45 : 1;
   SFX.updateEngine(input.throttle, boost, state.vx);
   const throttle = state.fuel > 0 ? input.throttle : 0.18;
@@ -405,7 +418,7 @@ function update(dt) {
     const dmg = state.disaster.damage / (v.armor + (levels.armor - 1) * 0.22) * shieldMult;
     state.hp -= dmg;
     state.shakeAmount += state.disaster.shake * 12;
-    emitSparks(state.x, state.y, Math.ceil(state.disaster.shake * 8));
+    emitSparks(state.x, vcy(), Math.ceil(state.disaster.shake * 8));
     state.event = `${state.disaster.name} incoming.`;
     state.disasterCount++;
     updateMission();
@@ -430,7 +443,7 @@ function update(dt) {
     state.partHealth = 28 + Math.random() * 22;
     state.nextFailure = Math.max(6, 12 - state.score * 0.002) + Math.random() * 8;
     state.shakeAmount += 6;
-    emitSparks(state.x, state.y, 10);
+    emitSparks(state.x, vcy(), 10);
     state.event = `${state.failedPart} failed. Draw a fix.`;
     SFX.playPartFailure();
     updateRepairText();
@@ -471,7 +484,13 @@ function update(dt) {
   const shake = Math.sin(performance.now() * 0.018) * disasterForce.shake;
 
   if (v.type === "ground") {
-    const groundY = terrainY(state.x + state.terrainOffset);
+    // Sample terrain at front and rear axle positions so both wheels touch
+    const AXLE_HALF = v.id === "truck" ? 38 : v.id === "buggy" ? 36 : v.id === "bike" ? 25 : 30;
+    const off = state.terrainOffset;
+    const frontTY = terrainY(state.x + off + AXLE_HALF);
+    const rearTY  = terrainY(state.x + off - AXLE_HALF);
+    const groundY = (frontTY + rearTY) * 0.5;                        // midpoint y = vehicle ref point
+    const terrainSlope = Math.atan2(frontTY - rearTY, AXLE_HALF * 2); // slope angle from rear→front
     const gravity = 0.62 * v.mass;
     const friction = (v.grip + gripBonus) * disasterForce.friction * (isIced ? 0.4 : 1);
     state.vx += v.thrust * engineBoost * engineMult * friction * throttle * boost * dt * 9;
@@ -481,11 +500,14 @@ function update(dt) {
     if (state.y >= groundY) {
       const impact = Math.max(0, state.vy - 7);
       const reducedImpact = impact * (1 - suspBonus);
-      if (reducedImpact > 3) { state.shakeAmount += reducedImpact * 0.9; emitSparks(state.x, state.y, Math.ceil(reducedImpact * 0.6)); SFX.playImpact(reducedImpact * 0.25); }
+      if (reducedImpact > 3) { state.shakeAmount += reducedImpact * 0.9; emitSparks(state.x, vcy(), Math.ceil(reducedImpact * 0.6)); SFX.playImpact(reducedImpact * 0.25); }
       state.hp -= reducedImpact * 0.35 / v.armor;
       state.y = groundY;
       state.vy *= -0.12;
-      state.spin += (input.turn * 0.036 + shake * 0.018 - state.angle * 0.02) / stabilityBoost;
+      // Smoothly align vehicle angle to terrain slope — makes both wheels touch the ground line
+      state.angle += (terrainSlope - state.angle) * 0.24;
+      state.spin *= 0.65;
+      state.spin += (input.turn * 0.036 + shake * 0.018) / stabilityBoost;
     }
   } else if (v.type === "air") {
     const flightThrottle = input.thrusting ? throttle : 0.22;
@@ -501,7 +523,7 @@ function update(dt) {
     state.spin += (input.turn * 0.035 + disasterForce.wind * 0.025 + shake * 0.01 - state.angle * 0.018) / stabilityBoost;
     if (state.y >= groundY) {
       const impact = Math.max(0, state.vy - 4.2);
-      if (impact > 1.5) { state.shakeAmount += impact * 1.4; emitSparks(state.x, state.y, Math.ceil(impact)); }
+      if (impact > 1.5) { state.shakeAmount += impact * 1.4; emitSparks(state.x, vcy(), Math.ceil(impact)); }
       state.hp -= impact * 1.8 / v.armor;
       state.y = groundY;
       state.vy *= -0.1;
@@ -529,13 +551,13 @@ function update(dt) {
 
   if (state.heat >= 98) {
     state.hp -= dt * 9;
-    if (Math.random() < dt * 4) emitSmoke(state.x, state.y - 20, 2);
+    if (Math.random() < dt * 4) emitSmoke(state.x, vcy() - 20, 2);
     state.event = "Engine overheating.";
   }
 
   const hpRatio = state.hp / state.maxHp;
   if (hpRatio < 0.6 && Math.random() < dt * (0.6 - hpRatio) * 10) {
-    emitSmoke(state.x + (Math.random() - 0.5) * 28, state.y - 10, hpRatio < 0.3 ? 2 : 1);
+    emitSmoke(state.x + (Math.random() - 0.5) * 28, vcy() - 10, hpRatio < 0.3 ? 2 : 1);
   }
 
   updatePickupsAndDebris(dt);
@@ -573,7 +595,48 @@ function readInput() {
   };
 }
 
+function autoInput() {
+  if (!state) return { throttle: 0.9, brake: 0, turn: 0, boost: false, thrusting: true };
+  const v = state.vehicle;
+  const angleCorrect = clamp(-state.angle * 5 - state.spin * 2.5, -1, 1);
+  let turn = angleCorrect;
+  let thrusting = true;
+  let brake = 0;
+  const autoBoost = state.fuel > 65 && state.heat < 50 && !state.failedPart;
+
+  if (v.type === "air") {
+    // Altitude control: thrusting=true → more lift → climb; brake → descent force → descend
+    // turn only controls spin/angle here — keep vehicle level
+    const targetY = worldCanvas.height * 0.40;
+    const yErr = state.y - targetY; // + means below target → need to climb
+    const needClimb   = yErr > 30;
+    const needDescend = yErr < -30;
+    thrusting = !needDescend;
+    brake = needDescend ? 0.65 : 0;
+    turn = angleCorrect; // keep wings level
+  } else if (v.type === "space") {
+    // Space physics: vy += turn * 0.018, so use turn to control vertical position
+    // Negative turn → decreases vy → vehicle moves up
+    const targetY = worldCanvas.height * 0.42;
+    const yErr = state.y - targetY; // + = below target, need to go up = negative vy = negative turn
+    const velDamp = state.vy * 12;
+    const vertControl = clamp((-yErr * 0.068 - velDamp * 0.042), -1, 1);
+    turn = vertControl; // this also affects spin but that's acceptable
+  } else {
+    // Ground: terrain slope alignment in physics handles tilt automatically.
+    // Only nudge forward lean when a steep rise is detected ahead.
+    const lookAheadY = terrainY(state.x + state.terrainOffset + 130);
+    const rise = state.y - lookAheadY; // + = terrain rising ahead of vehicle
+    turn = rise > 50 ? 0.18 : 0;
+  }
+
+  return { throttle: 1.0, brake, turn, boost: autoBoost, thrusting };
+}
+
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+// Visual center y — ground vehicles draw upward from state.y (wheel bottom), body center ~30px up
+function vcy() { return state ? state.y - (state.vehicle?.type === "ground" ? 30 : 0) : 0; }
 
 // --- Boss Events ---
 
@@ -591,7 +654,7 @@ function triggerBoss() {
   state.disasterTimer = 999;
   state.bossTimer = 1200 + Math.random() * 400;
   state.shakeAmount += 14;
-  emitSparks(state.x, state.y, 16);
+  emitSparks(state.x, vcy(), 16);
   state.event = `BOSS: ${template.name}!`;
   SFX.playBossStart();
 }
@@ -623,7 +686,7 @@ function updateBoss(dt) {
       boss.phaseTimer = boss.phases[boss.phase].duration;
       state.event = `${boss.name} — ${boss.phases[boss.phase].label}`;
       state.shakeAmount += 10;
-      emitSparks(state.x, state.y, 12);
+      emitSparks(state.x, vcy(), 12);
     }
   }
 }
@@ -683,7 +746,10 @@ function updatePickupsAndDebris(dt) {
   });
 
   state.pickups = state.pickups.filter(p => {
-    if (distance(p.x, p.y, state.x, state.y) < p.r + 42) { collectPickup(p); return false; }
+    // Hell mode: auto-collect on proximity. Normal mode: player must tap the pickup.
+    if (gameMode === "hell" && distance(p.x, p.y, state.x, state.y) < p.r + 42) {
+      collectPickup(p); return false;
+    }
     return p.x > -80;
   });
 
@@ -692,7 +758,7 @@ function updatePickupsAndDebris(dt) {
       state.hp -= (12 + d.r * 0.6) / (state.vehicle.armor + (state.levels.armor - 1) * 0.25);
       state.spin += d.vx > -100 ? 0.16 : -0.16;
       state.shakeAmount += 7;
-      emitSparks(state.x, state.y, 12);
+      emitSparks(state.x, vcy(), 12);
       state.event = "Debris impact.";
       SFX.playDebrisHit();
       return false;
@@ -1103,18 +1169,32 @@ function drawGroundRocks(W, offset, isFlood, biome) {
 }
 
 function drawPickupsAndDebris() {
+  const t = performance.now();
   state.pickups.forEach(p => {
     world.save();
     world.translate(p.x, p.y);
+
+    if (gameMode === "normal") {
+      // Pulsing tap-target ring to show the pickup is clickable
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.005 + p.x);
+      world.globalAlpha = 0.25 + pulse * 0.35;
+      world.strokeStyle = p.color;
+      world.lineWidth = 2;
+      world.beginPath();
+      world.arc(0, 0, p.r + 10 + pulse * 8, 0, Math.PI * 2);
+      world.stroke();
+      world.globalAlpha = 1;
+    }
+
     world.fillStyle = p.color;
     world.strokeStyle = "#101311";
     world.lineWidth = 3;
     world.beginPath();
-    world.arc(0, 0, p.r, 0, Math.PI * 2);
+    world.arc(0, 0, gameMode === "normal" ? p.r + 4 : p.r, 0, Math.PI * 2);
     world.fill();
     world.stroke();
     world.fillStyle = "#101311";
-    world.font = "700 12px system-ui";
+    world.font = `700 ${gameMode === "normal" ? 14 : 12}px system-ui`;
     world.textAlign = "center";
     world.textBaseline = "middle";
     world.fillText(p.type === "coin" ? "$" : p.type === "repair" ? "+" : "F", 0, 1);
@@ -1167,9 +1247,12 @@ function drawVehicle() {
   else if (v.id === "orbital")    drawOrbital(bodyColor);
   else                            drawSpaceship(bodyColor);
 
+  // For ground vehicles, the visual center is ~30px above y=0 (wheel bottom contact)
+  const vCenterY = v.type === "ground" ? -30 : 0;
+
   if (state.repairOverlay?.strokes.length > 0) {
     const scale = 0.165;
-    const ox = -26, oy = -18;
+    const ox = -26, oy = vCenterY - 8;
     world.save();
     world.strokeStyle = "#1a1a1a";
     world.lineWidth = 1.5;
@@ -1190,7 +1273,7 @@ function drawVehicle() {
     world.lineWidth = 2;
     world.globalAlpha = 0.55 + Math.sin(performance.now() * 0.014) * 0.45;
     world.beginPath();
-    world.arc(0, 0, 68, 0, Math.PI * 2);
+    world.arc(0, vCenterY, 62, 0, Math.PI * 2);
     world.stroke();
     world.restore();
   }
@@ -1213,85 +1296,249 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 function drawCar(color) {
+  const wr = 11;
+  // Shadow on ground
+  world.save(); world.globalAlpha = 0.18; world.fillStyle = "#000";
+  world.beginPath(); world.ellipse(0, 2, 44, 5, 0, 0, Math.PI * 2); world.fill();
+  world.restore();
+  // Floor pan / undercarriage
+  world.fillStyle = "#1a2018";
+  world.fillRect(-42, -24, 84, 10);
+  // Rear boot slope
   world.fillStyle = color;
-  roundRect(world, -46, -18, 92, 28, 6);
+  world.beginPath();
+  world.moveTo(-20, -42); world.lineTo(-44, -33); world.lineTo(-44, -22); world.lineTo(-20, -22);
+  world.closePath(); world.fill(); world.stroke();
+  // Front hood slope
+  world.beginPath();
+  world.moveTo(20, -42); world.lineTo(44, -30); world.lineTo(44, -22); world.lineTo(20, -22);
+  world.closePath(); world.fill(); world.stroke();
+  // Main body sill
+  world.fillStyle = color;
+  roundRect(world, -44, -44, 88, 22, 5);
   world.fill(); world.stroke();
-  world.fillStyle = "#c8dede";
-  roundRect(world, -22, -40, 46, 24, 4);
-  world.fill(); world.stroke();
-  world.fillStyle = "rgba(160,220,230,0.5)";
-  world.fillRect(-19, -37, 18, 18);
-  world.fillRect(3, -37, 18, 18);
-  drawWheel(-32, 14, 13);
-  drawWheel(32, 14, 13);
+  // Cabin / greenhouse
+  world.fillStyle = "#8ab0ae";
+  world.beginPath();
+  world.moveTo(-18, -44); world.lineTo(-36, -63); world.lineTo(17, -63); world.lineTo(20, -44);
+  world.closePath(); world.fill(); world.stroke();
+  // Rear window
+  world.fillStyle = "rgba(160,220,230,0.52)";
+  world.beginPath();
+  world.moveTo(-15, -45); world.lineTo(-31, -61); world.lineTo(-2, -61); world.lineTo(-2, -45);
+  world.closePath(); world.fill();
+  // Front windshield
+  world.beginPath();
+  world.moveTo(2, -45); world.lineTo(2, -61); world.lineTo(15, -61); world.lineTo(18, -45);
+  world.closePath(); world.fill();
+  // B-pillar divider
+  world.strokeStyle = "#2a3428"; world.lineWidth = 3;
+  world.beginPath(); world.moveTo(-2, -45); world.lineTo(-2, -61); world.stroke();
+  // Door line
+  world.strokeStyle = "rgba(0,0,0,0.22)"; world.lineWidth = 1.5;
+  world.beginPath(); world.moveTo(-2, -44); world.lineTo(-2, -22); world.stroke();
+  // Headlight
+  world.fillStyle = "#f8f8b8"; world.strokeStyle = "#b0b040"; world.lineWidth = 1.5;
+  world.beginPath(); world.ellipse(43, -33, 5, 3.5, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // DRL strip
+  world.fillStyle = "rgba(255,255,180,0.7)";
+  world.fillRect(37, -26, 7, 2);
+  // Taillight
+  world.fillStyle = "#f46a55"; world.strokeStyle = "#902828"; world.lineWidth = 1.5;
+  world.beginPath(); world.ellipse(-43, -33, 4, 3.5, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // Wheels — centers at y=-wr so bottoms sit at y=0 (ground level)
+  world.lineWidth = 3; world.strokeStyle = "#0d1210";
+  drawWheel(-30, -wr, wr);
+  drawWheel(30, -wr, wr);
 }
 
 function drawBike(color) {
+  const wr = 13;
+  // Shadow
+  world.save(); world.globalAlpha = 0.15; world.fillStyle = "#000";
+  world.beginPath(); world.ellipse(2, 2, 34, 4, 0, 0, Math.PI * 2); world.fill();
+  world.restore();
+  // Rear swing arm
+  world.strokeStyle = "#364434"; world.lineWidth = 4;
+  world.beginPath(); world.moveTo(-24, -wr); world.lineTo(-4, -26); world.stroke();
+  // Front fork (angled)
+  world.beginPath(); world.moveTo(24, -wr); world.lineTo(16, -30); world.stroke();
+  world.beginPath(); world.moveTo(26, -wr); world.lineTo(18, -30); world.stroke();
+  // Main backbone frame tube
+  world.strokeStyle = "#2a3228"; world.lineWidth = 5;
+  world.beginPath(); world.moveTo(-4, -26); world.lineTo(16, -30); world.stroke();
+  // Sub-frame to seat
+  world.lineWidth = 3;
+  world.beginPath(); world.moveTo(-4, -26); world.lineTo(-10, -40); world.stroke();
+  world.beginPath(); world.moveTo(16, -30); world.lineTo(-10, -40); world.stroke();
+  // Engine block
+  world.fillStyle = "#282e26"; world.strokeStyle = "#0d1210"; world.lineWidth = 2;
+  roundRect(world, -8, -34, 18, 12, 3);
+  world.fill(); world.stroke();
+  // Exhaust pipe
+  world.strokeStyle = "#686868"; world.lineWidth = 4;
+  world.beginPath(); world.moveTo(-8, -28); world.bezierCurveTo(-18, -28, -24, -22, -26, -16); world.stroke();
+  world.fillStyle = "#484848";
+  world.beginPath(); world.ellipse(-26, -15, 5, 3, -0.3, 0, Math.PI * 2); world.fill();
+  // Fuel tank
+  world.fillStyle = color; world.strokeStyle = "#0d1210"; world.lineWidth = 3;
+  roundRect(world, -4, -48, 22, 14, 5);
+  world.fill(); world.stroke();
+  // Fairing / nose
   world.fillStyle = color;
   world.beginPath();
-  world.moveTo(28, -12);
-  world.lineTo(-24, -6);
-  world.lineTo(-24, 6);
-  world.lineTo(28, 4);
-  world.closePath();
-  world.fill(); world.stroke();
-  world.save();
-  world.strokeStyle = "#b0b8b0";
-  world.lineWidth = 4;
+  world.moveTo(14, -48); world.lineTo(26, -38); world.lineTo(24, -28); world.lineTo(14, -30);
+  world.closePath(); world.fill(); world.stroke();
+  // Windscreen
+  world.fillStyle = "rgba(160,220,230,0.55)";
   world.beginPath();
-  world.moveTo(22, -12);
-  world.lineTo(22, -22);
-  world.stroke();
-  world.restore();
-  drawWheel(-22, 14, 15);
-  drawWheel(24, 14, 15);
+  world.moveTo(16, -46); world.lineTo(25, -37); world.lineTo(23, -30); world.lineTo(15, -32);
+  world.closePath(); world.fill();
+  // Seat
+  world.fillStyle = "#1a1e18";
+  roundRect(world, -14, -50, 18, 6, 3);
+  world.fill();
+  // Rider torso + helmet
+  world.fillStyle = "#1c2418";
+  world.beginPath(); world.ellipse(2, -54, 6, 9, -0.15, 0, Math.PI * 2); world.fill();
+  world.beginPath(); world.arc(2, -65, 6, 0, Math.PI * 2); world.fill();
+  // Helmet visor
+  world.fillStyle = "rgba(160,220,230,0.5)";
+  world.beginPath(); world.arc(4, -65, 4, Math.PI * 1.1, Math.PI * 1.9); world.fill();
+  // Handlebar
+  world.strokeStyle = "#c0c8c0"; world.lineWidth = 3;
+  world.beginPath(); world.moveTo(12, -44); world.lineTo(20, -42); world.stroke();
+  // Headlight
+  world.fillStyle = "#f8f8b8"; world.strokeStyle = "#b0b040"; world.lineWidth = 1.5;
+  world.beginPath(); world.ellipse(25, -38, 5, 4, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // Wheels
+  world.lineWidth = 3; world.strokeStyle = "#0d1210";
+  drawWheel(-24, -wr, wr);
+  drawWheel(26, -wr, wr);
 }
 
 function drawTruck(color) {
-  world.fillStyle = color;
-  roundRect(world, -46, -24, 50, 38, 5);
+  const wr = 12;
+  // Shadow
+  world.save(); world.globalAlpha = 0.18; world.fillStyle = "#000";
+  world.beginPath(); world.ellipse(0, 2, 58, 6, 0, 0, Math.PI * 2); world.fill();
+  world.restore();
+  // Cargo box body
+  world.fillStyle = "#384036"; world.strokeStyle = "#0d1210"; world.lineWidth = 3;
+  roundRect(world, -58, -50, 68, 38, 3);
   world.fill(); world.stroke();
+  // Cargo ribs (vertical reinforcements)
+  world.strokeStyle = "rgba(0,0,0,0.28)"; world.lineWidth = 1.5;
+  [-42, -28, -12].forEach(x => {
+    world.beginPath(); world.moveTo(x, -50); world.lineTo(x, -12); world.stroke();
+  });
+  // Cargo top rail
+  world.strokeStyle = "#4a5248"; world.lineWidth = 3;
+  world.beginPath(); world.moveTo(-58, -50); world.lineTo(10, -50); world.stroke();
+  // Cab (front section — right side = front direction)
+  world.fillStyle = color; world.strokeStyle = "#0d1210"; world.lineWidth = 3;
+  roundRect(world, 10, -68, 50, 56, 6);
+  world.fill(); world.stroke();
+  // Cab window strip
+  world.fillStyle = "#8ab0ae"; world.strokeStyle = "#0d1210"; world.lineWidth = 2;
+  roundRect(world, 14, -64, 42, 28, 4);
+  world.fill(); world.stroke();
+  // Windshield glass
   world.fillStyle = "rgba(160,220,230,0.5)";
-  world.fillRect(-40, -20, 36, 14);
-  world.fillStyle = "#3a4a3a";
-  world.fillRect(6, -16, 56, 30);
-  world.strokeRect(6, -16, 56, 30);
-  drawWheel(-28, 18, 13);
-  drawWheel(-10, 18, 13);
-  drawWheel(34, 18, 13);
-  drawWheel(50, 18, 13);
+  world.fillRect(16, -62, 38, 24);
+  // Cab lower panel
+  world.fillStyle = "#243028"; world.strokeStyle = "#0d1210";
+  world.fillRect(10, -24, 50, 12);
+  // Chrome front bumper
+  world.fillStyle = "#707870";
+  roundRect(world, 52, -22, 10, 10, 3);
+  world.fill(); world.stroke();
+  // Headlights (two stacked)
+  world.fillStyle = "#f8f8b8"; world.strokeStyle = "#b0b040"; world.lineWidth = 1.5;
+  world.beginPath(); world.ellipse(59, -50, 5, 4, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  world.beginPath(); world.ellipse(59, -38, 5, 4, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // Air intake grille
+  world.strokeStyle = "#2a3028"; world.lineWidth = 2;
+  [0, 4, 8].forEach(dy => {
+    world.beginPath(); world.moveTo(58, -58 + dy); world.lineTo(62, -58 + dy); world.stroke();
+  });
+  // Exhaust stack
+  world.strokeStyle = "#606860"; world.lineWidth = 5;
+  world.beginPath(); world.moveTo(18, -68); world.lineTo(18, -88); world.stroke();
+  world.fillStyle = "#404840";
+  world.beginPath(); world.ellipse(18, -88, 5, 3, 0, 0, Math.PI * 2); world.fill();
+  // Taillights
+  world.fillStyle = "#f46a55"; world.strokeStyle = "#902828"; world.lineWidth = 1.5;
+  world.beginPath(); world.ellipse(-57, -44, 3, 5, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  world.beginPath(); world.ellipse(-57, -30, 3, 5, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // Side marker
+  world.fillStyle = "#f5b84b";
+  world.beginPath(); world.arc(-58, -18, 3, 0, Math.PI * 2); world.fill();
+  // Wheels — front axle and two rear axles
+  world.lineWidth = 3; world.strokeStyle = "#0d1210";
+  drawWheel(38, -wr, wr);       // front
+  drawWheel(-22, -wr, wr);      // rear-front
+  drawWheel(-38, -wr, wr);      // rear-rear
 }
 
 function drawBuggy(color) {
-  // Open roll cage frame
-  world.fillStyle = "#2a3228";
+  const wr = 15;
+  // Shadow
+  world.save(); world.globalAlpha = 0.18; world.fillStyle = "#000";
+  world.beginPath(); world.ellipse(0, 2, 48, 6, 0, 0, Math.PI * 2); world.fill();
+  world.restore();
+  // Main roll cage tubes
+  world.strokeStyle = "#4a5848"; world.lineWidth = 5;
+  // Outer frame loop (rectangle)
   world.beginPath();
-  world.moveTo(-38, -22); world.lineTo(38, -22);
-  world.lineTo(38, 8);    world.lineTo(-38, 8);
-  world.closePath();
-  world.fill(); world.stroke();
-  // Cage bars
-  world.strokeStyle = "#4a5a48";
-  world.lineWidth = 4;
-  world.beginPath();
-  world.moveTo(-20, -22); world.lineTo(-20, 8);
-  world.moveTo(20, -22);  world.lineTo(20, 8);
-  world.moveTo(-38, -10); world.lineTo(38, -10);
+  world.moveTo(-36, -wr); world.lineTo(-36, -58);
+  world.lineTo(36, -58); world.lineTo(36, -wr);
   world.stroke();
+  // Diagonal X bracing
   world.lineWidth = 3;
-  world.strokeStyle = "#0d1210";
-  // Body floor
-  world.fillStyle = color;
-  roundRect(world, -36, -8, 72, 16, 4);
+  world.strokeStyle = "#3a4838";
+  world.beginPath(); world.moveTo(-36, -58); world.lineTo(36, -wr); world.stroke();
+  world.beginPath(); world.moveTo(36, -58); world.lineTo(-36, -wr); world.stroke();
+  // Mid horizontal bar
+  world.strokeStyle = "#4a5848"; world.lineWidth = 4;
+  world.beginPath(); world.moveTo(-36, -36); world.lineTo(36, -36); world.stroke();
+  // Front skid plate / bumper
+  world.fillStyle = "#384036"; world.strokeStyle = "#0d1210"; world.lineWidth = 2;
+  roundRect(world, 30, -28, 14, 14, 4);
   world.fill(); world.stroke();
-  // Driver silhouette
+  // Floor pan
+  world.fillStyle = "#242e22";
+  roundRect(world, -34, -32, 68, 20, 3);
+  world.fill(); world.stroke();
+  // Seat and body panel
+  world.fillStyle = color; world.strokeStyle = "#0d1210"; world.lineWidth = 3;
+  roundRect(world, -26, -50, 52, 20, 4);
+  world.fill(); world.stroke();
+  // Dashboard
   world.fillStyle = "#1a2018";
-  world.beginPath();
-  world.ellipse(0, -18, 8, 10, 0, 0, Math.PI * 2);
-  world.fill();
-  // Big off-road wheels
-  drawWheel(-30, 18, 16);
-  drawWheel(30, 18, 16);
+  world.fillRect(10, -50, 16, 8);
+  // Steering wheel
+  world.strokeStyle = "#888"; world.lineWidth = 2;
+  world.beginPath(); world.arc(8, -48, 6, 0, Math.PI * 2); world.stroke();
+  world.beginPath(); world.moveTo(8, -42); world.lineTo(8, -54); world.stroke();
+  // Driver helmet
+  world.fillStyle = "#1c2418";
+  world.beginPath(); world.arc(-4, -54, 8, 0, Math.PI * 2); world.fill();
+  world.fillStyle = "rgba(160,220,230,0.5)";
+  world.beginPath(); world.arc(-2, -54, 5.5, Math.PI * 1.1, Math.PI * 1.9); world.fill();
+  // Headlights bar
+  world.fillStyle = "#f8f8b8"; world.strokeStyle = "#b0b040"; world.lineWidth = 1.5;
+  world.fillRect(36, -30, 8, 4);
+  world.beginPath(); world.ellipse(42, -28, 5, 4, 0, 0, Math.PI * 2); world.fill(); world.stroke();
+  // Engine vents
+  world.strokeStyle = "rgba(0,0,0,0.3)"; world.lineWidth = 1.5;
+  [-18, -10, -2].forEach(x => {
+    world.beginPath(); world.moveTo(x, -32); world.lineTo(x, -14); world.stroke();
+  });
+  // Big off-road wheels with more gap
+  world.lineWidth = 3; world.strokeStyle = "#0d1210";
+  drawWheel(-36, -wr, wr);
+  drawWheel(36, -wr, wr);
 }
 
 function drawOrbital(color) {
@@ -1553,22 +1800,28 @@ function drawWheel(x, y, r) {
   world.save();
   world.translate(x, y);
   world.rotate(state.wheelAngle);
-  world.beginPath();
-  world.arc(0, 0, r, 0, Math.PI * 2);
-  world.fillStyle = "#161918";
-  world.fill(); world.stroke();
-  world.strokeStyle = "#f5b84b";
-  world.lineWidth = 2;
-  world.beginPath();
-  world.moveTo(-r * 0.55, 0); world.lineTo(r * 0.55, 0);
-  world.moveTo(0, -r * 0.55); world.lineTo(0, r * 0.55);
-  world.stroke();
-  world.beginPath();
-  world.arc(0, 0, r * 0.28, 0, Math.PI * 2);
-  world.fillStyle = "#f5b84b";
-  world.fill();
-  world.lineWidth = 3;
-  world.strokeStyle = "#0d1210";
+  // Outer tire
+  world.beginPath(); world.arc(0, 0, r, 0, Math.PI * 2);
+  world.fillStyle = "#181c18"; world.fill(); world.stroke();
+  // Tire sidewall inner ring
+  world.beginPath(); world.arc(0, 0, r - 2.5, 0, Math.PI * 2);
+  world.strokeStyle = "#2a2e28"; world.lineWidth = 1.5; world.stroke();
+  // Rim base
+  world.beginPath(); world.arc(0, 0, r * 0.56, 0, Math.PI * 2);
+  world.fillStyle = "#424840"; world.fill();
+  // 5 spokes
+  world.strokeStyle = "#c4c8be"; world.lineWidth = 2;
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    world.beginPath();
+    world.moveTo(Math.cos(a) * r * 0.15, Math.sin(a) * r * 0.15);
+    world.lineTo(Math.cos(a) * r * 0.54, Math.sin(a) * r * 0.54);
+    world.stroke();
+  }
+  // Center hub cap
+  world.beginPath(); world.arc(0, 0, r * 0.18, 0, Math.PI * 2);
+  world.fillStyle = "#d0c858"; world.fill();
+  world.lineWidth = 3; world.strokeStyle = "#0d1210";
   world.restore();
 }
 
@@ -1864,7 +2117,7 @@ function installRepair() {
   state.hp = Math.min(state.maxHp, state.hp + 10 + state.repairQuality * 18);
   state.runCoins += 12 + state.repairQuality * 26;
   state.shakeAmount += 3;
-  emitSparks(state.x, state.y, 5);
+  emitSparks(state.x, vcy(), 5);
   state.event = `${state.failedPart} patched at ${Math.round(state.repairQuality * 100)}%.`;
   const pct = Math.round(state.repairQuality * 100);
   const grade = pct >= 85 ? "Excellent" : pct >= 65 ? "Good" : pct >= 42 ? "Fair" : "Rough";
@@ -1929,6 +2182,27 @@ function endRun() {
 }
 
 // --- Drawing canvas events ---
+
+// Normal mode: tap/click on worldCanvas to collect pickups
+worldCanvas.addEventListener("pointerdown", e => {
+  if (!state || state.over || paused || gameMode !== "normal") return;
+  const rect = worldCanvas.getBoundingClientRect();
+  const scaleX = worldCanvas.width / rect.width;
+  const scaleY = worldCanvas.height / rect.height;
+  const cx = (e.clientX - rect.left) * scaleX;
+  const cy = (e.clientY - rect.top) * scaleY;
+  // Generous hit radius for finger touch
+  const hitR = 36;
+  let collected = false;
+  state.pickups = state.pickups.filter(p => {
+    if (!collected && distance(cx, cy, p.x, p.y) < p.r + hitR) {
+      collectPickup(p);
+      collected = true;
+      return false;
+    }
+    return true;
+  });
+});
 
 drawCanvas.addEventListener("pointerdown", event => {
   drawing = true;
@@ -2219,6 +2493,15 @@ function updateDailyBadge() {
 }
 
 // Event listeners for Phase 5 UI
+// Mode picker
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    gameMode = btn.dataset.mode;
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+  });
+});
+
 document.querySelector("#dailyBtn")?.addEventListener("click", () => { SFX.init(); SFX.resume(); startDailyChallenge(); updateDailyBadge(); });
 document.querySelector("#leaderboardBtn")?.addEventListener("click", showLeaderboard);
 document.querySelector("#closeLeaderboard")?.addEventListener("click", () => document.querySelector("#leaderboardModal").classList.add("hidden"));

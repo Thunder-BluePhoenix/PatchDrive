@@ -1,6 +1,13 @@
 ---
 title: PatchDrive — Progress Tracker
 updated: 2026-04-25
+
+## Mode System
+- [x] Normal mode — vehicle auto-pilots (PD angle controller + terrain look-ahead), pickups collected by tap/click on canvas
+- [x] Hell mode — full manual keyboard/touch control, pickups auto-collect on proximity
+- [x] Mode picker in garage with distinct styling (teal = Normal, red = Hell)
+- [x] Mode badge shown in run HUD
+- [x] Touch D-pad hidden in Normal mode (not needed with auto-pilot)
 ---
 
 # PatchDrive Progress Tracker

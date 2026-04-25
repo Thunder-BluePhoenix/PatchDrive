@@ -31,6 +31,13 @@
       <section id="garage" class="garage">
         <div class="garage-header">
           <h2>Garage</h2>
+          <div class="mode-strip">
+            <span class="upgrade-label">Mode</span>
+            <div class="mode-row">
+              <button class="mode-btn selected" data-mode="normal" title="Vehicle drives itself — tap pickups to collect · Focus on drawing repairs">Normal</button>
+              <button class="mode-btn hell" data-mode="hell" title="Full manual control · Pickups auto-collect on contact">Hell 🔥</button>
+            </div>
+          </div>
           <div class="loadout-strip">
             <span class="upgrade-label">Loadout</span>
             <div class="loadout-row">
@@ -91,7 +98,7 @@
           <div><span>Disaster</span><strong id="disaster">Clear</strong></div>
         </div>
         <div class="run-strip">
-          <div id="controlHint">W/Up thrust · A/D arrows balance · S brake · Space boost · P pause</div>
+          <div id="controlHint">W/Up thrust · A/D arrows balance · S brake · Space boost · P pause <span id="modeBadge" class="mode-badge">Normal</span></div>
           <div id="missionDisplay" class="mission-display">Mission loading...</div>
           <div id="eventLog">Systems online.</div>
         </div>
